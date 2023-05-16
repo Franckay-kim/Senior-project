@@ -1,16 +1,18 @@
-# chat_app_front_end
+# Responsive Welcome, Login, and Sign up page - Flutter UI
 
-A new Flutter project.
+### [Live Preview 🔴 ](https://abuanwar072.github.io/Welcome-Login-Signup-Page-Flutter/#/)
 
-## Getting Started
+### [Watch it on YouTube](https://youtu.be/8gJ_WRmxyW0)
 
-This project is a starting point for a Flutter application.
+**Packages we are using:**
 
-A few resources to get you started if this is your first Flutter project:
+- flutter_svg: [link](https://pub.dev/packages/flutter_svg)
 
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
+We design 3 responsive screens first one is a welcome screen the user opens your app it shows then users have two options if the user has an account then press the login button and it just shifts the user to the login screen, or if they don't have an account then press signup button its transfers to the signup screen. All of those screens work perfectly on Android, iOS, Web, and Desktop.
 
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+**Specal Thanks to: Muhammad Hamza (@mhmzdev)**
+
+### Auth UI
+
+![Preview UI](/preview.gif)
+![App UI](/UI.png)

@@ -16,6 +16,8 @@
   -->
   <base href="$FLUTTER_BASE_HREF">
 
+  <link rel="stylesheet" href="loader.css">
+
   <meta charset="UTF-8">
   <meta content="IE=Edge" http-equiv="X-UA-Compatible">
   <meta name="description" content="A new Flutter project.">
@@ -23,13 +25,25 @@
   <!-- iOS meta tags & icons -->
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black">
-  <meta name="apple-mobile-web-app-title" content="chat_app_front_end">
+  <meta name="apple-mobile-web-app-title" content="flutter_auth">
   <link rel="apple-touch-icon" href="icons/Icon-192.png">
 
   <!-- Favicon -->
   <link rel="icon" type="image/png" href="favicon.png"/>
 
-  <title>chat_app_front_end</title>
+  <title>flutter_auth</title>
+  <div id="container">
+    <div class="divider" aria-hidden="true"></div>
+    <p class="loading-text" aria-label="Loading">
+      <span class="letter" aria-hidden="true">L</span>
+      <span class="letter" aria-hidden="true">o</span>
+      <span class="letter" aria-hidden="true">a</span>
+      <span class="letter" aria-hidden="true">d</span>
+      <span class="letter" aria-hidden="true">i</span>
+      <span class="letter" aria-hidden="true">n</span>
+      <span class="letter" aria-hidden="true">g</span>
+    </p>
+  </div>
   <link rel="manifest" href="manifest.json">
 
   <script>
@@ -46,12 +60,11 @@
       _flutter.loader.loadEntrypoint({
         serviceWorker: {
           serviceWorkerVersion: serviceWorkerVersion,
-        },
-        onEntrypointLoaded: function(engineInitializer) {
-          engineInitializer.initializeEngine().then(function(appRunner) {
-            appRunner.runApp();
-          });
         }
+      }).then(function(engineInitializer) {
+        return engineInitializer.initializeEngine();
+      }).then(function(appRunner) {
+        return appRunner.runApp();
       });
     });
   </script>
