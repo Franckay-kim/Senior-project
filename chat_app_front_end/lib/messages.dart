@@ -13,7 +13,7 @@ class MyApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
           drawerTheme: const DrawerThemeData(scrimColor: Colors.transparent)),
-      title: 'New Wathsapp UI',
+      title: 'Chat App',
       home: const MyHomePage(),
     );
   }
