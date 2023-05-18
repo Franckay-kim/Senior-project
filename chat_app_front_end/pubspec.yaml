@@ -1,5 +1,6 @@
 name: flutter_auth
 description: A new Flutter project.
+include: package:flutter_lints/flutter.yaml
 
 # The following defines the version and build number for your application.
 # A version number is three numbers separated by dots, like 1.2.43
@@ -28,6 +29,15 @@ dependencies:
 dev_dependencies:
   flutter_test:
     sdk: flutter
+
+  flutter_launcher_icons: ^0.13.1
+
+flutter_icons:
+  image_path: "assets/images/CHAT2.jpeg"
+  android: true
+  ios: true
+  
+
 
   flutter_lints: ^2.0.1
 
