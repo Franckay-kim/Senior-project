@@ -23,7 +23,7 @@ class SocalIcon extends StatelessWidget {
             width: 2,
             color: kPrimaryLightColor,
           ),
-          shape: BoxShape.circle,
+          shape: BoxShape.circle, 
         ),
         child: SvgPicture.asset(
           iconSrc!,
