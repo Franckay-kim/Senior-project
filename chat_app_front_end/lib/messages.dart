@@ -231,7 +231,7 @@ class _MyHomePageState extends State<MyHomePage> {
                       children: const [
                         Icon(
                           Icons.arrow_back_ios,
-                          color: Colors.white,
+                          color: Color.fromRGBO(255, 255, 255, 1),
                           size: 20,
                         ),
                         SizedBox(
@@ -275,8 +275,6 @@ class _MyHomePageState extends State<MyHomePage> {
                       height: 35,
                       color: Colors.green,
                     ),
-                    const DrawerItem(
-                        title: 'Invite a friend', icon: Icons.people_outline),
                   ],
                 ),
                 const DrawerItem(title: 'Log out', icon: Icons.logout)
