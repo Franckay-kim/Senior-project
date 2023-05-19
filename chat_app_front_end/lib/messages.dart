@@ -67,18 +67,31 @@ class _MyHomePageState extends State<MyHomePage> {
                   scrollDirection: Axis.horizontal,
                   padding: const EdgeInsets.only(left: 10),
                   children: [
-                    TextButton(
-                        onPressed: () {},
-                        child: const Text(
-                          "chats",
-                          style: TextStyle(color: Colors.white, fontSize: 26),
-                        )),
+                     Hero(
+            tag: "",
+            child: TextButton(
+              onPressed: () {
+                 Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) {
+                    return HomePage();
+                  },
+                ),
+              );
+              },
+              child: Text(
+                "Chats".toUpperCase(),
+                style: TextStyle(color: Colors.grey, fontSize: 20),
+              ),
+            ),
+          ),
                     const SizedBox(
                       width: 35,
                     ),
                    Hero(
             tag: "",
-            child: ElevatedButton(
+            child: TextButton(
               onPressed: () {
                  Navigator.push(
                 context,
@@ -91,16 +104,29 @@ class _MyHomePageState extends State<MyHomePage> {
               },
               child: Text(
                 "Scheduler".toUpperCase(),
-                style: TextStyle(color: Colors.grey, fontSize: 26),
+                style: TextStyle(color: Colors.grey, fontSize: 20),
               ),
             ),
           ),
-                    TextButton(
-                        onPressed: () {},
-                        child: const Text(
-                          "status",
-                          style: TextStyle(color: Colors.grey, fontSize: 26),
-                        )),
+                     Hero(
+            tag: "", 
+            child: TextButton(
+              onPressed: () {
+                 Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) {
+                    return HomePage();
+                  },
+                ),
+              );
+              },
+              child: Text(
+                "Status".toUpperCase(),
+                style: TextStyle(color: Colors.grey, fontSize: 20),
+              ),
+            ),
+          ),
                     const SizedBox(
                       width: 35,
                     ),
