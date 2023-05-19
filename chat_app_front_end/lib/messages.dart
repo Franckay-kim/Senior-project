@@ -91,6 +91,7 @@ class _MyHomePageState extends State<MyHomePage> {
               },
               child: Text(
                 "Scheduler".toUpperCase(),
+                style: TextStyle(color: Colors.grey, fontSize: 26),
               ),
             ),
           ),
