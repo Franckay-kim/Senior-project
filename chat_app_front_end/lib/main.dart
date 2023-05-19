@@ -12,11 +12,11 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      debugShowCheckedModeBanner: false,
-      title: 'Flutter Auth',
-      theme: ThemeData(
-          primaryColor: kPrimaryColor,
-          scaffoldBackgroundColor: Colors.white,
+      debugShowCheckedModeBanner: false, 
+      title: 'MeChat', 
+      theme: ThemeData( 
+          primaryColor: kPrimaryColor, 
+          scaffoldBackgroundColor: Colors.white, 
           elevatedButtonTheme: ElevatedButtonThemeData(
             style: ElevatedButton.styleFrom(
               elevation: 0,

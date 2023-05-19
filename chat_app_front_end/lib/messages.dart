@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../../schedule.dart';
 
 void main() {
   runApp(const MyApp());
@@ -69,34 +70,34 @@ class _MyHomePageState extends State<MyHomePage> {
                     TextButton(
                         onPressed: () {},
                         child: const Text(
-                          "Messages",
+                          "chats",
                           style: TextStyle(color: Colors.white, fontSize: 26),
                         )),
                     const SizedBox(
                       width: 35,
                     ),
+                   Hero(
+            tag: "",
+            child: ElevatedButton(
+              onPressed: () {
+                 Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) {
+                    return HomePage();
+                  },
+                ),
+              );
+              },
+              child: Text(
+                "Schedules".toUpperCase(),
+              ),
+            ),
+          ),
                     TextButton(
                         onPressed: () {},
                         child: const Text(
-                          "Online",
-                          style: TextStyle(color: Colors.grey, fontSize: 26),
-                        )),
-                    const SizedBox(
-                      width: 35,
-                    ),
-                    TextButton(
-                        onPressed: () {},
-                        child: const Text(
-                          "Groups",
-                          style: TextStyle(color: Colors.grey, fontSize: 26),
-                        )),
-                    const SizedBox(
-                      width: 35,
-                    ),
-                    TextButton(
-                        onPressed: () {},
-                        child: const Text(
-                          "More",
+                          "status",
                           style: TextStyle(color: Colors.grey, fontSize: 26),
                         )),
                     const SizedBox(
