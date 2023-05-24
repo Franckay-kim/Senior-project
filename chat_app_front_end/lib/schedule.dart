@@ -41,7 +41,7 @@ class _HomePageState extends State<HomePage> {
 
 
   Future<void> _scheduleNotification(DateTime scheduledTime) async {
-    if (_messageController.text.isNotEmpty && scheduledTime != null) {
+    if (_messageController.text.isNotEmpty && scheduledTime != true) {
       const AndroidNotificationDetails androidPlatformChannelSpecifics =
           AndroidNotificationDetails(
         '1',
