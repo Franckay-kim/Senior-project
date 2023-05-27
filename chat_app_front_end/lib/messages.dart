@@ -68,7 +68,7 @@ class _MyHomePageState extends State<MyHomePage> {
                   padding: const EdgeInsets.only(left: 10),
                   children: [
                      Hero(
-            tag: "",
+            tag: "btn1",
             child: TextButton(
               onPressed: () {
                  Navigator.push(
@@ -90,7 +90,7 @@ class _MyHomePageState extends State<MyHomePage> {
                       width: 35,
                     ),
                    Hero(
-            tag: "",
+            tag: "btn2",
             child: TextButton(
               onPressed: () {
                  Navigator.push(
@@ -109,7 +109,7 @@ class _MyHomePageState extends State<MyHomePage> {
             ),
           ),
                      Hero(
-            tag: "", 
+            tag: "btn3", 
             child: TextButton(
               onPressed: () {
                  Navigator.push(

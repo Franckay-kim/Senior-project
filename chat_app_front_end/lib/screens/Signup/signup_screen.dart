@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_auth/constants.dart';
-import 'package:flutter_auth/responsive.dart';
+import 'package:MeChat/constants.dart';
+import 'package:MeChat/responsive.dart';
 import '../../components/background.dart';
 import 'components/sign_up_top_image.dart';
 import 'components/signup_form.dart';

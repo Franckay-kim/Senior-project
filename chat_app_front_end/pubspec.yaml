@@ -1,4 +1,4 @@
-name: flutter_auth
+name: MeChat
 description: A new Flutter project.
 include: package:flutter_lints/flutter.yaml
 
