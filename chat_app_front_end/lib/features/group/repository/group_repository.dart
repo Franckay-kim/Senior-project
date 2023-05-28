@@ -6,9 +6,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_contacts/flutter_contacts.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:uuid/uuid.dart';
-import 'package:whatsapp_ui/common/repositories/common_firebase_storage_repository.dart';
-import 'package:whatsapp_ui/common/utils/utils.dart';
-import 'package:whatsapp_ui/models/group.dart' as model;
+import 'package:MeChat/common/repositories/common_firebase_storage_repository.dart';
+import 'package:MeChat/common/utils/utils.dart';
+import 'package:MeChat/models/group.dart' as model;
 
 final groupRepositoryProvider = Provider(
   (ref) => GroupRepository(
