@@ -43,6 +43,8 @@ dependencies:
   swipe_to: ^1.0.2
   cached_video_player: ^2.0.4
   flutter_sound: ^9.2.13
+  enough_giphy_flutter: ^0.4.0
+  image_picker: ^0.8.7+5
 
 dev_dependencies:
   flutter_test:
