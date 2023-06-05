@@ -1,3 +1,4 @@
+import 'package:MeChat/Screens/Login/login_screen.dart';
 import 'package:flutter/material.dart';
 import '../../../schedule.dart';
 
@@ -304,7 +305,25 @@ class _MyHomePageState extends State<MyHomePage> {
                     ),
                   ],
                 ),
-                const DrawerItem(title: 'Log out', icon: Icons.logout)
+                 Hero(
+            tag: "btn4",
+            child: TextButton(
+              onPressed: () {
+                 Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) {
+                    return LoginScreen();
+                  },
+                ),
+              );
+              },
+              child: Text(
+                "logout".toUpperCase(),
+                style: TextStyle(color: Colors.grey, fontSize: 20),
+              ),
+            ),
+          ),
               ],
             ),
           ),
