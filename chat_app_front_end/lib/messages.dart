@@ -137,55 +137,7 @@ class _MyHomePageState extends State<MyHomePage> {
               )
             ],
           ),
-          Positioned(
-            top: 190,
-            left: 0,
-            right: 0,
-            child: Container(
-              padding: const EdgeInsets.only(top: 15, left: 25, right: 25),
-              height: 220,
-              decoration: const BoxDecoration(
-                  color: Color(0xFF27c1a9),
-                  borderRadius: BorderRadius.only(
-                      topLeft: Radius.circular(40),
-                      topRight: Radius.circular(40))),
-              child: Column(
-                children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      const Text(
-                        "Favorite contacts",
-                        style: TextStyle(color: Colors.white),
-                      ),
-                      IconButton(
-                          onPressed: () {},
-                          icon: const Icon(
-                            Icons.more_horiz,
-                            color: Colors.white,
-                          )),
-                    ],
-                  ),
-                  SizedBox(
-                    height: 90,
-                    child: ListView(
-                      scrollDirection: Axis.horizontal,
-                      children: [
-                        buildContactAvatar('Alla', 'img1.jpeg'),
-                        buildContactAvatar('July', 'img2.jpeg'),
-                        buildContactAvatar('Mikle', 'img3.jpeg'),
-                        buildContactAvatar('Kler', 'img4.jpg'),
-                        buildContactAvatar('Moane', 'img5.jpeg'),
-                        buildContactAvatar('Julie', 'img6.jpeg'),
-                        buildContactAvatar('Allen', 'img7.jpeg'),
-                        buildContactAvatar('John', 'img8.jpg'),
-                      ],
-                    ),
-                  )
-                ],
-              ),
-            ),
-          ),
+          
           Positioned(
               top: 365,
               left: 0,
