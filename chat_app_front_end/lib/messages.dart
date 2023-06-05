@@ -1,6 +1,7 @@
 import 'package:MeChat/Screens/Login/login_screen.dart';
 import 'package:flutter/material.dart';
 import '../../../schedule.dart';
+//import '../../../models/status_model.dart';
 
 void main() {
   runApp(const MyApp());

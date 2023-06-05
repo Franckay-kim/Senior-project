@@ -27,6 +27,24 @@ dependencies:
   cupertino_icons: ^1.0.5
   flutter_svg: ^1.1.0
   flutter_local_notifications: ^14.0.1
+  flutter_riverpod: ^2.3.6
+  flutter_contacts: ^1.1.6
+  cloud_firestore: ^4.7.1
+  firebase_auth: ^4.6.1
+  uuid: ^3.0.7
+  story_view: ^0.14.0
+  firebase_storage: ^11.2.1
+  country_picker: ^2.0.20
+  agora_uikit: ^1.3.3
+  emoji_picker_flutter: ^1.5.4
+  intl: ^0.18.1
+  audioplayers: ^4.0.1
+  cached_network_image: ^3.2.3
+  swipe_to: ^1.0.2
+  cached_video_player: ^2.0.4
+  flutter_sound: ^9.2.13
+  enough_giphy_flutter: ^0.4.0
+  image_picker: ^0.8.7+5
 
 dev_dependencies:
   flutter_test:
