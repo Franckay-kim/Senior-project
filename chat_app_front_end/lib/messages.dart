@@ -1,4 +1,8 @@
+// ignore_for_file: unused_import
+
+import 'package:MeChat/Screens/Login/login_screen.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import '../../../schedule.dart';
 
 void main() {
@@ -34,7 +38,7 @@ class _MyHomePageState extends State<MyHomePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       key: _globalKey,
-      backgroundColor: const Color(0xFF171717),
+      backgroundColor: Color.fromARGB(255, 156, 231, 141),
       body: Stack(
         children: [
           Column(
@@ -68,21 +72,21 @@ class _MyHomePageState extends State<MyHomePage> {
                   padding: const EdgeInsets.only(left: 10),
                   children: [
                      Hero(
-            tag: "btn1",
+            tag: "btn7",
             child: TextButton(
               onPressed: () {
                  Navigator.push(
                 context,
                 MaterialPageRoute(
                   builder: (context) {
-                    return HomePage();
+                    return MyHomePage();
                   },
                 ),
               );
               },
               child: Text(
                 "Chats".toUpperCase(),
-                style: TextStyle(color: Colors.grey, fontSize: 20),
+                style: TextStyle(color: Color.fromARGB(255, 43, 168, 231), fontSize: 20),
               ),
             ),
           ),
@@ -90,7 +94,7 @@ class _MyHomePageState extends State<MyHomePage> {
                       width: 35,
                     ),
                    Hero(
-            tag: "btn2",
+            tag: "btn8",
             child: TextButton(
               onPressed: () {
                  Navigator.push(
@@ -104,12 +108,12 @@ class _MyHomePageState extends State<MyHomePage> {
               },
               child: Text(
                 "Scheduler".toUpperCase(),
-                style: TextStyle(color: Colors.grey, fontSize: 20),
+                style: TextStyle(color: Color.fromARGB(255, 44, 178, 212), fontSize: 20),
               ),
             ),
           ),
                      Hero(
-            tag: "btn3", 
+            tag: "btn9", 
             child: TextButton(
               onPressed: () {
                  Navigator.push(
@@ -123,7 +127,7 @@ class _MyHomePageState extends State<MyHomePage> {
               },
               child: Text(
                 "Status".toUpperCase(),
-                style: TextStyle(color: Colors.grey, fontSize: 20),
+                style: TextStyle(color: Color.fromARGB(255, 51, 171, 214), fontSize: 20),
               ),
             ),
           ),
@@ -135,57 +139,9 @@ class _MyHomePageState extends State<MyHomePage> {
               )
             ],
           ),
+          
           Positioned(
-            top: 190,
-            left: 0,
-            right: 0,
-            child: Container(
-              padding: const EdgeInsets.only(top: 15, left: 25, right: 25),
-              height: 220,
-              decoration: const BoxDecoration(
-                  color: Color(0xFF27c1a9),
-                  borderRadius: BorderRadius.only(
-                      topLeft: Radius.circular(40),
-                      topRight: Radius.circular(40))),
-              child: Column(
-                children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      const Text(
-                        "Favorite contacts",
-                        style: TextStyle(color: Colors.white),
-                      ),
-                      IconButton(
-                          onPressed: () {},
-                          icon: const Icon(
-                            Icons.more_horiz,
-                            color: Colors.white,
-                          )),
-                    ],
-                  ),
-                  SizedBox(
-                    height: 90,
-                    child: ListView(
-                      scrollDirection: Axis.horizontal,
-                      children: [
-                        buildContactAvatar('Alla', 'img1.jpeg'),
-                        buildContactAvatar('July', 'img2.jpeg'),
-                        buildContactAvatar('Mikle', 'img3.jpeg'),
-                        buildContactAvatar('Kler', 'img4.jpg'),
-                        buildContactAvatar('Moane', 'img5.jpeg'),
-                        buildContactAvatar('Julie', 'img6.jpeg'),
-                        buildContactAvatar('Allen', 'img7.jpeg'),
-                        buildContactAvatar('John', 'img8.jpg'),
-                      ],
-                    ),
-                  )
-                ],
-              ),
-            ),
-          ),
-          Positioned(
-              top: 365,
+              top: 200,
               left: 0,
               right: 0,
               bottom: 0,
@@ -288,23 +244,94 @@ class _MyHomePageState extends State<MyHomePage> {
                     const SizedBox(
                       height: 35,
                     ),
-                    const DrawerItem(
-                      title: 'Account',
-                      icon: Icons.key,
-                    ),
-                    const DrawerItem(title: 'Chats', icon: Icons.chat_bubble),
-                    const DrawerItem(
-                        title: 'Notifications', icon: Icons.notifications),
-                    const DrawerItem(
-                        title: 'Data and Storage', icon: Icons.storage),
-                    const DrawerItem(title: 'Help', icon: Icons.help),
+                    Hero(
+            tag: "btn4",
+            child: TextButton.icon(
+              icon: Icon(Icons.account_box),
+              onPressed: () {
+                 Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) {
+                    return LoginScreen();
+                  },
+                ),
+              );
+              },
+              label: Text(
+                "Account".toUpperCase(),
+                style: TextStyle(color: Color.fromARGB(255, 57, 145, 217), fontSize: 16),
+              ),
+            ),
+          ),
+              
+                    Hero(
+            tag: "btn5",
+            child: TextButton.icon(
+              icon: Icon(Icons.messenger),
+              onPressed: () {
+                 Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) {
+                    return MyHomePage();
+                  },
+                ),
+              );
+              },
+              label: Text(
+                "Chats".toUpperCase(),
+                style: TextStyle(color: Color.fromARGB(255, 54, 198, 227), fontSize: 16),
+              ),
+            ),
+          ),
+                    Hero(
+            tag: "btn6",
+            child: TextButton.icon(
+              icon: Icon(Icons.notification_important_rounded),
+              onPressed: () {
+                 Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) {
+                    return HomePage();
+                  },
+                ),
+              );
+              },
+              label: Text(
+                "Notifications".toUpperCase(),
+                style: TextStyle(color: Color.fromARGB(255, 41, 204, 237), fontSize: 16),
+              ),
+            ),
+          ),
+                    
                     const Divider(
                       height: 35,
                       color: Colors.green,
                     ),
                   ],
                 ),
-                const DrawerItem(title: 'Log out', icon: Icons.logout)
+                Hero(
+            tag: "btn3",
+            child: TextButton.icon(
+              icon: Icon(Icons.logout),
+              onPressed: () {
+                 Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) {
+                    return LoginScreen();
+                  },
+                ),
+              );
+              },
+              label: Text(
+                "Logout".toUpperCase(),
+                style: TextStyle(color: const Color.fromARGB(255, 177, 12, 12), fontSize: 16),
+              ),
+            ),
+          ),
               ],
             ),
           ),
