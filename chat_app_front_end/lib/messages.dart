@@ -4,6 +4,7 @@ import 'package:MeChat/Screens/Login/login_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import '../../../schedule.dart';
+import '../../../status.dart';
 
 void main() {
   runApp(const MyApp());
@@ -120,7 +121,7 @@ class _MyHomePageState extends State<MyHomePage> {
                 context,
                 MaterialPageRoute(
                   builder: (context) {
-                    return HomePage();
+                    return ScheduleScreen();
                   },
                 ),
               );
@@ -281,7 +282,7 @@ class _MyHomePageState extends State<MyHomePage> {
               },
               label: Text(
                 "Chats".toUpperCase(),
-                style: TextStyle(color: Color.fromARGB(255, 54, 198, 227), fontSize: 16),
+                style: TextStyle(color: Color.fromARGB(255, 44, 183, 230), fontSize: 16),
               ),
             ),
           ),
@@ -301,7 +302,7 @@ class _MyHomePageState extends State<MyHomePage> {
               },
               label: Text(
                 "Notifications".toUpperCase(),
-                style: TextStyle(color: Color.fromARGB(255, 41, 204, 237), fontSize: 16),
+                style: TextStyle(color: Color.fromARGB(255, 46, 177, 204), fontSize: 16),
               ),
             ),
           ),
