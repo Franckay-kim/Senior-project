@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'schedule.dart';
 
 class ScheduledMessage {
   String message;
@@ -46,6 +47,10 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
+            Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+           
+              ),
             TextField(
               controller: messageController,
               decoration: InputDecoration(labelText: 'Message'),
@@ -80,7 +85,16 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
               },
             ),
            ElevatedButton(
-              onPressed: scheduleMessage,
+              onPressed: () {
+                 Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) {
+                    return HomePage();
+                  },
+                ),
+              );
+              },
               child: Text('Schedule'),
             ),
             SizedBox(height: 16.0),
