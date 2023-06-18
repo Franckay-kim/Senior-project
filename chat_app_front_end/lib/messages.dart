@@ -96,7 +96,7 @@ class _MyHomePageState extends State<MyHomePage> {
                     const SizedBox(
                       width: 35,
                     ),
-                   Hero(
+                   /*Hero(
             tag: "btn8",
             child: TextButton(
               onPressed: () {
@@ -114,7 +114,7 @@ class _MyHomePageState extends State<MyHomePage> {
                 style: TextStyle(color: Colors.amber, fontSize: 20),
               ),
             ),
-          ),
+          ),*/
                      Hero(
             tag: "btn9", 
             child: TextButton(
@@ -129,7 +129,7 @@ class _MyHomePageState extends State<MyHomePage> {
               );
               },
               child: Text(
-                "Status".toUpperCase(),
+                "Schedules".toUpperCase(),
                 style: TextStyle(color: Colors.amber, fontSize: 20),
               ),
             ),
@@ -311,7 +311,7 @@ class _MyHomePageState extends State<MyHomePage> {
                 context,
                 MaterialPageRoute(
                   builder: (context) {
-                    return HomePage();
+                    return HomePages();
                   },
                 ),
               );

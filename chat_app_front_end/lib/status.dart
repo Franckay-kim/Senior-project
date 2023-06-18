@@ -1,14 +1,10 @@
-// ignore_for_file: unnecessary_import
-
 import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
-
-import 'package:flutter/cupertino.dart';
 
 class ScheduledMessage {
   final String message;
   final DateTime scheduledTime;
-  final List<String> recipients;
+  List<String> recipients;
 
   ScheduledMessage({
     required this.message,
@@ -28,7 +24,7 @@ class MyApp extends StatelessWidget {
       initialRoute: '/',
       routes: {
         '/': (context) => HomePages(),
-        //'/profile': (context) => ProfilePage(),
+       // '/recipientSelection': (context) => RecipientSelectionPage(),
       },
     );
   }
@@ -50,7 +46,8 @@ class _HomePageState extends State<HomePages> {
     super.initState();
     final InitializationSettings initializationSettings =
         InitializationSettings(
-            android: AndroidInitializationSettings('@mipmap/ic_launcher'));
+      android: AndroidInitializationSettings('@mipmap/ic_launcher'),
+    );
     flutterLocalNotificationsPlugin.initialize(initializationSettings);
   }
 
@@ -93,29 +90,39 @@ class _HomePageState extends State<HomePages> {
     // Your implementation here
   }
 
+  Future<void> _selectRecipients(ScheduledMessage scheduledMessage) async {
+    final List<String>? selectedRecipients = await Navigator.pushNamed(
+      context,
+      '/recipientSelection',
+      arguments: scheduledMessage.recipients,
+    );
+
+    if (selectedRecipients != null) {
+      scheduledMessage.recipients = selectedRecipients;
+      setState(() {});
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: Text('Scheduler'),
       ),
-      body: Center(
-        child: Stack(
-          children: <Widget>[
-          Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [Padding(padding: const EdgeInsets.only(top: 100,bottom: 100, left: 5, right: 5),)],
-          ),
-          SizedBox(
-            height:50,
+      body: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            SizedBox(
+              height: 50,
               child: TextField(
-              controller: _messageController,
-              decoration: InputDecoration(
-                hintText: 'Enter your message',
+                controller: _messageController,
+                decoration: InputDecoration(
+                  hintText: 'Enter your message',
+                ),
               ),
             ),
-          ),
-
             SizedBox(height: 20),
             ElevatedButton(
               onPressed: () async {
@@ -144,49 +151,132 @@ class _HomePageState extends State<HomePages> {
               },
               child: Text('Schedule Message'),
             ),
-            SizedBox(
-              height: 20,
-            child:Text(
+            SizedBox(height: 20),
+            Text(
               'Scheduled Messages:',
               style: TextStyle(fontWeight: FontWeight.bold),
             ),
-            ),
-            Positioned(
-              top: 250,
-              left: 0,
-              right: 0,
-              bottom: 0,
-              child: Container(
-                padding: const EdgeInsets.symmetric(vertical: 15),
-                decoration: const BoxDecoration(
-                  borderRadius: BorderRadius.only(
-                      topLeft: Radius.circular(40),
-                      topRight: Radius.circular(40)),
-                  color: Colors.grey,
-                ),
+            Expanded(
               child: ListView.builder(
-                itemCount:scheduledMessages.length,
-                itemBuilder: (context, index){
-                  final ScheduledMessage = scheduledMessages[index];
-                  return ListTile(
-                    title: Text(ScheduledMessage.message),
-                    subtitle: Text(
-                      'Scheduled Time: ${ScheduledMessage.scheduledTime}',
-                    ),
-                    trailing: ElevatedButton(
-                      onPressed: (){
-                       // _sendScheduledMessage(scheduledMessage);
-                      },
-                      child: Text('Send'),
-                    ),
+                itemCount: scheduledMessages.length,
+                itemBuilder: (context, index) {
+                  final scheduledMessage = scheduledMessages[index];
+                  return ScheduledMessageTile(
+                    scheduledMessage: scheduledMessage,
+                    onSend: () {
+                      _sendScheduledMessage(scheduledMessage);
+                    },
+                    onSelectRecipients: () {
+                      _selectRecipients(scheduledMessage);
+                    },
                   );
                 },
               ),
             ),
-            )
           ],
         ),
       ),
     );
   }
+}
+
+class ScheduledMessageTile extends StatelessWidget {
+  final ScheduledMessage scheduledMessage;
+  final VoidCallback onSend;
+  final VoidCallback onSelectRecipients;
+
+  const ScheduledMessageTile({
+    required this.scheduledMessage,
+    required this.onSend,
+    required this.onSelectRecipients,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: double.infinity,
+      child: ListTile(
+        title: Text(scheduledMessage.message),
+        subtitle: Text(
+          'Scheduled Time: ${scheduledMessage.scheduledTime}',
+        ),
+        trailing: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Container(
+              width: 80,
+              child: ElevatedButton(
+                onPressed: onSelectRecipients,
+                child: Text('Recipients'),
+              ),
+            ),
+            SizedBox(width: 8),
+            Container(
+              width: 80,
+              child: ElevatedButton(
+                onPressed: onSend,
+                child: Text('Send'),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
   }
+}
+
+class RecipientSelectionPage extends StatefulWidget {
+  final List<String> selectedRecipients;
+
+  RecipientSelectionPage({required this.selectedRecipients});
+
+  @override
+  _RecipientSelectionPageState createState() => _RecipientSelectionPageState();
+}
+
+class _RecipientSelectionPageState extends State<RecipientSelectionPage> {
+  List<String> recipients = [];
+
+  @override
+  void initState() {
+    super.initState();
+    recipients = List.from(widget.selectedRecipients);
+  }
+
+  void _toggleRecipient(String recipient) {
+    if (recipients.contains(recipient)) {
+      recipients.remove(recipient);
+    } else {
+      recipients.add(recipient);
+    }
+    setState(() {});
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text('Select Recipients'),
+      ),
+      body: ListView.builder(
+        itemCount: recipients.length,
+        itemBuilder: (context, index) {
+          final recipient = recipients[index];
+          return ListTile(
+            title: Text(recipient),
+            trailing: Checkbox(
+              value: widget.selectedRecipients.contains(recipient),
+              onChanged: (selected) => _toggleRecipient(recipient),
+            ),
+          );
+        },
+      ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () {
+          Navigator.pop(context, recipients);
+        },
+        child: Icon(Icons.check),
+      ),
+    );
+  }
+}
