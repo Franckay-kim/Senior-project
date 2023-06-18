@@ -5,6 +5,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import '../../../schedule.dart';
 import '../../../status.dart';
+import '../../../chats.dart';
+
 
 void main() {
   runApp(const MyApp());
@@ -39,7 +41,7 @@ class _MyHomePageState extends State<MyHomePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       key: _globalKey,
-      backgroundColor: Color.fromARGB(255, 156, 231, 141),
+      backgroundColor: Color.fromARGB(255, 11, 168, 92),
       body: Stack(
         children: [
           Column(
@@ -87,7 +89,7 @@ class _MyHomePageState extends State<MyHomePage> {
               },
               child: Text(
                 "Chats".toUpperCase(),
-                style: TextStyle(color: Color.fromARGB(255, 43, 168, 231), fontSize: 20),
+                style: TextStyle(color: Colors.amber, fontSize: 20),
               ),
             ),
           ),
@@ -109,7 +111,7 @@ class _MyHomePageState extends State<MyHomePage> {
               },
               child: Text(
                 "Scheduler".toUpperCase(),
-                style: TextStyle(color: Color.fromARGB(255, 44, 178, 212), fontSize: 20),
+                style: TextStyle(color: Colors.amber, fontSize: 20),
               ),
             ),
           ),
@@ -121,14 +123,14 @@ class _MyHomePageState extends State<MyHomePage> {
                 context,
                 MaterialPageRoute(
                   builder: (context) {
-                    return ScheduleScreen();
+                    return HomePages();
                   },
                 ),
               );
               },
               child: Text(
                 "Status".toUpperCase(),
-                style: TextStyle(color: Color.fromARGB(255, 51, 171, 214), fontSize: 20),
+                style: TextStyle(color: Colors.amber, fontSize: 20),
               ),
             ),
           ),
@@ -141,7 +143,7 @@ class _MyHomePageState extends State<MyHomePage> {
             ],
           ),
           
-          Positioned(
+           Positioned(
               top: 200,
               left: 0,
               right: 0,
@@ -154,7 +156,19 @@ class _MyHomePageState extends State<MyHomePage> {
                       topRight: Radius.circular(40)),
                   color: Color(0xFFEFFFFC),
                 ),
-                child: ListView(
+                child: GestureDetector(
+            onTap: (){
+              // Navigate to a new screen when an item is tapped
+               Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) {
+                    return ChatsApp();
+                  },
+                ),
+              );
+            },
+            child:ListView(
                   padding: const EdgeInsets.only(left: 25),
                   children: [
                     buildConversationRow(
@@ -174,8 +188,10 @@ class _MyHomePageState extends State<MyHomePage> {
                         'Laura', 'Helle, how are you', 'img1.jpeg', 0),
                   ],
                 ),
-              ))
-        ],
+              )
+            )
+          )
+        ]  
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.endDocked,
       floatingActionButton: SizedBox(
@@ -261,7 +277,7 @@ class _MyHomePageState extends State<MyHomePage> {
               },
               label: Text(
                 "Account".toUpperCase(),
-                style: TextStyle(color: Color.fromARGB(255, 57, 145, 217), fontSize: 16),
+                style: TextStyle(color: Colors.amberAccent, fontSize: 16),
               ),
             ),
           ),
@@ -282,7 +298,7 @@ class _MyHomePageState extends State<MyHomePage> {
               },
               label: Text(
                 "Chats".toUpperCase(),
-                style: TextStyle(color: Color.fromARGB(255, 44, 183, 230), fontSize: 16),
+                style: TextStyle(color: Colors.amberAccent, fontSize: 16),
               ),
             ),
           ),
@@ -302,7 +318,7 @@ class _MyHomePageState extends State<MyHomePage> {
               },
               label: Text(
                 "Notifications".toUpperCase(),
-                style: TextStyle(color: Color.fromARGB(255, 46, 177, 204), fontSize: 16),
+                style: TextStyle(color: Colors.amberAccent, fontSize: 16),
               ),
             ),
           ),
@@ -329,7 +345,7 @@ class _MyHomePageState extends State<MyHomePage> {
               },
               label: Text(
                 "Logout".toUpperCase(),
-                style: TextStyle(color: const Color.fromARGB(255, 177, 12, 12), fontSize: 16),
+                style: TextStyle(color:Colors.red, fontSize: 16),
               ),
             ),
           ),
@@ -387,7 +403,7 @@ class _MyHomePageState extends State<MyHomePage> {
                   if (msgCount > 0)
                     CircleAvatar(
                       radius: 7,
-                      backgroundColor: const Color(0xFF27c1a9),
+                      backgroundColor: Colors.green,
                       child: Text(
                         msgCount.toString(),
                         style:
@@ -475,7 +491,7 @@ class UserAvatar extends StatelessWidget {
   Widget build(BuildContext context) {
     return CircleAvatar(
       radius: 32,
-      backgroundColor: Colors.white,
+      backgroundColor: Colors.blueGrey,
       child: CircleAvatar(
         radius: 29,
         backgroundImage: Image.asset('assets/images/$filename').image,

@@ -1,123 +1,192 @@
+// ignore_for_file: unnecessary_import
+
 import 'package:flutter/material.dart';
-import 'schedule.dart';
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+
+import 'package:flutter/cupertino.dart';
 
 class ScheduledMessage {
-  String message;
-  List<String> recipients;
-  int repetitionCount;
+  final String message;
+  final DateTime scheduledTime;
+  final List<String> recipients;
 
-  ScheduledMessage({required this.message, required this.recipients, required this.repetitionCount});
+  ScheduledMessage({
+    required this.message,
+    required this.scheduledTime,
+    required this.recipients,
+  });
 }
 
-class ScheduleScreen extends StatefulWidget {
+class MyApp extends StatelessWidget {
   @override
-  _ScheduleScreenState createState() => _ScheduleScreenState();
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      title: 'Messaging App',
+      theme: ThemeData(
+        primarySwatch: Colors.deepOrange,
+      ),
+      initialRoute: '/',
+      routes: {
+        '/': (context) => HomePages(),
+        //'/profile': (context) => ProfilePage(),
+      },
+    );
+  }
 }
 
-class _ScheduleScreenState extends State<ScheduleScreen> {
-  List<ScheduledMessage> scheduledMessages = [];
-  TextEditingController messageController = TextEditingController();
-  List<String> selectedRecipients = [];
-  int repetitionCount = 1;
+class HomePages extends StatefulWidget {
+  @override
+  _HomePageState createState() => _HomePageState();
+}
 
-  void scheduleMessage() {
-    if (messageController.text.isNotEmpty && selectedRecipients.isNotEmpty) {
-      ScheduledMessage scheduledMessage = ScheduledMessage(
-        message: messageController.text,
-        recipients: List.from(selectedRecipients),
-        repetitionCount: repetitionCount,
+class _HomePageState extends State<HomePages> {
+  final TextEditingController _messageController = TextEditingController();
+  final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
+      FlutterLocalNotificationsPlugin();
+  final List<ScheduledMessage> scheduledMessages = [];
+
+  @override
+  void initState() {
+    super.initState();
+    final InitializationSettings initializationSettings =
+        InitializationSettings(
+            android: AndroidInitializationSettings('@mipmap/ic_launcher'));
+    flutterLocalNotificationsPlugin.initialize(initializationSettings);
+  }
+
+  Future<void> _scheduleNotification(DateTime scheduledTime) async {
+    if (_messageController.text.isNotEmpty && scheduledTime != true) {
+      const AndroidNotificationDetails androidPlatformChannelSpecifics =
+          AndroidNotificationDetails(
+        '1',
+        'Messaging App',
+        importance: Importance.max,
+        priority: Priority.high,
+        showWhen: false,
       );
-      setState(() {
-        scheduledMessages.add(scheduledMessage);
-        messageController.clear();
-        selectedRecipients.clear();
-        repetitionCount = 1;
-      });
+      const NotificationDetails platformChannelSpecifics =
+          NotificationDetails(android: androidPlatformChannelSpecifics);
+      flutterLocalNotificationsPlugin.schedule(
+        0,
+        'Messaging App',
+        _messageController.text,
+        scheduledTime,
+        platformChannelSpecifics,
+      );
+
+      scheduledMessages.add(
+        ScheduledMessage(
+          message: _messageController.text,
+          scheduledTime: scheduledTime,
+          recipients: [], // Replace with selected recipients
+        ),
+      );
+
+      _messageController.clear();
+
+      setState(() {});
     }
+  }
+
+  void _sendScheduledMessage(ScheduledMessage scheduledMessage) {
+    // Send the scheduled message to the selected recipients
+    // Your implementation here
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Schedule Messages'),
+        title: Text('Scheduler'),
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-           
+      body: Center(
+        child: Stack(
+          children: <Widget>[
+          Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [Padding(padding: const EdgeInsets.only(top: 100,bottom: 100, left: 5, right: 5),)],
+          ),
+          SizedBox(
+            height:50,
+              child: TextField(
+              controller: _messageController,
+              decoration: InputDecoration(
+                hintText: 'Enter your message',
               ),
-            TextField(
-              controller: messageController,
-              decoration: InputDecoration(labelText: 'Message'),
             ),
-            SizedBox(height: 16.0),
+          ),
+
+            SizedBox(height: 20),
             ElevatedButton(
-              onPressed: () {
-                // Open contacts picker to select recipients
-                // Code to select recipients and update 'selectedRecipients' list
+              onPressed: () async {
+                final DateTime? picked = await showDatePicker(
+                  context: context,
+                  initialDate: DateTime.now(),
+                  firstDate: DateTime(2000),
+                  lastDate: DateTime(2025),
+                );
+                if (picked != null) {
+                  final TimeOfDay? timeOfDay = await showTimePicker(
+                    context: context,
+                    initialTime: TimeOfDay.now(),
+                  );
+                  if (timeOfDay != null) {
+                    final DateTime scheduledTime = DateTime(
+                      picked.year,
+                      picked.month,
+                      picked.day,
+                      timeOfDay.hour,
+                      timeOfDay.minute,
+                    );
+                    _scheduleNotification(scheduledTime);
+                  }
+                }
               },
-              child: Text('Select Recipients'),
+              child: Text('Schedule Message'),
             ),
-            SizedBox(height: 16.0),
-            Text(
-              'Recipients: ${selectedRecipients.length}',
-              style: TextStyle(fontSize: 16.0),
-            ),
-            SizedBox(height: 16.0),
-            Text(
-              'Repetition Count: $repetitionCount',
-              style: TextStyle(fontSize: 16.0),
-            ),
-            Slider(
-              value: repetitionCount.toDouble(),
-              min: 1,
-              max: 10,
-              divisions: 9,
-              onChanged: (value) {
-                setState(() {
-                  repetitionCount = value.toInt();
-                });
-              },
-            ),
-           ElevatedButton(
-              onPressed: () {
-                 Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) {
-                    return HomePage();
-                  },
-                ),
-              );
-              },
-              child: Text('Schedule'),
-            ),
-            SizedBox(height: 16.0),
-            Text(
+            SizedBox(
+              height: 20,
+            child:Text(
               'Scheduled Messages:',
-              style: TextStyle(fontSize: 18.0, fontWeight: FontWeight.bold),
+              style: TextStyle(fontWeight: FontWeight.bold),
             ),
-            Expanded(
+            ),
+            Positioned(
+              top: 250,
+              left: 0,
+              right: 0,
+              bottom: 0,
+              child: Container(
+                padding: const EdgeInsets.symmetric(vertical: 15),
+                decoration: const BoxDecoration(
+                  borderRadius: BorderRadius.only(
+                      topLeft: Radius.circular(40),
+                      topRight: Radius.circular(40)),
+                  color: Colors.grey,
+                ),
               child: ListView.builder(
-                itemCount: scheduledMessages.length,
-                itemBuilder: (context, index) {
-                  ScheduledMessage message = scheduledMessages[index];
+                itemCount:scheduledMessages.length,
+                itemBuilder: (context, index){
+                  final ScheduledMessage = scheduledMessages[index];
                   return ListTile(
-                    title: Text(message.message),
-                    subtitle: Text('Recipients: ${message.recipients.length}'),
-                    trailing: Text('Repetition: ${message.repetitionCount}'),
+                    title: Text(ScheduledMessage.message),
+                    subtitle: Text(
+                      'Scheduled Time: ${ScheduledMessage.scheduledTime}',
+                    ),
+                    trailing: ElevatedButton(
+                      onPressed: (){
+                       // _sendScheduledMessage(scheduledMessage);
+                      },
+                      child: Text('Send'),
+                    ),
                   );
                 },
               ),
             ),
+            )
           ],
         ),
       ),
     );
   }
-}
+  }
