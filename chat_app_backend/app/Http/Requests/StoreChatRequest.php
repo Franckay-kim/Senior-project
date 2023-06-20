@@ -4,7 +4,7 @@ namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
 
-class LoginRequest extends FormRequest
+class StoreChatRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -23,8 +23,9 @@ class LoginRequest extends FormRequest
     {
         return [
             //
-            'phone_number'=>'required|exists:users,phone_number',
-            'password'=>'required'
+            'sender_id' => 'required',
+            'message'=>'required|string|max:2000',
+            'receiver_id'=>'required',
         ];
     }
 }

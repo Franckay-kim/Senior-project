@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import '../../../components/already_have_an_account_acheck.dart';
 import '../../../constants.dart';
 import '../../../messages.dart';
-import '../../../Screens/Signup/signup_screen.dart';
+import '../../Signup/signup_screen.dart';
 
 class LoginForm extends StatelessWidget {
   const LoginForm({
