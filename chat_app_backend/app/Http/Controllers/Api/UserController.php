@@ -39,6 +39,7 @@ class UserController extends Controller
                 'receiver_id' => $data['receiver_id']
             ]
         );
+        broadcast(new NewChatEvent($chat))->toOthers();
         return compact('chat');
     }
 
