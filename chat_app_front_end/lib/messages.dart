@@ -1,17 +1,12 @@
 // ignore_for_file: unused_import
 
-import 'package:MeChat/Screens/Login/login_screen.dart';
+//import 'package:MeChat/Screens/Login/login_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import '../../../schedule.dart';
-<<<<<<< HEAD
 import '../../../status.dart';
 import '../../../chats.dart';
-
-=======
-import 'screens/Login/login_screen.dart';
-//import '../../../models/status_model.dart';
->>>>>>> 04075f8bb7240d394db4865663beb295f21e4a20
+import './screens/Login/login_screen.dart';
 
 void main() {
   runApp(const MyApp());
@@ -148,13 +143,8 @@ class _MyHomePageState extends State<MyHomePage> {
             ],
           ),
           
-<<<<<<< HEAD
            Positioned(
               top: 200,
-=======
-          Positioned(
-              top: 365,
->>>>>>> 04075f8bb7240d394db4865663beb295f21e4a20
               left: 0,
               right: 0,
               bottom: 0,
@@ -339,16 +329,10 @@ class _MyHomePageState extends State<MyHomePage> {
                     ),
                   ],
                 ),
-<<<<<<< HEAD
                 Hero(
             tag: "btn3",
             child: TextButton.icon(
               icon: Icon(Icons.logout),
-=======
-                 Hero(
-            tag: "btn4",
-            child: TextButton(
->>>>>>> 04075f8bb7240d394db4865663beb295f21e4a20
               onPressed: () {
                  Navigator.push(
                 context,
@@ -359,15 +343,9 @@ class _MyHomePageState extends State<MyHomePage> {
                 ),
               );
               },
-<<<<<<< HEAD
               label: Text(
                 "Logout".toUpperCase(),
                 style: TextStyle(color:Colors.red, fontSize: 16),
-=======
-              child: Text(
-                "logout".toUpperCase(),
-                style: TextStyle(color: Colors.grey, fontSize: 20),
->>>>>>> 04075f8bb7240d394db4865663beb295f21e4a20
               ),
             ),
           ),
