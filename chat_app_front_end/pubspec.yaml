@@ -28,10 +28,12 @@ dependencies:
   flutter_local_notifications: ^14.0.1
   # contacts_service: ^0.6.3
   intl: ^0.18.1
+  http: ^1.0.0
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
+  
 
   flutter_launcher_icons: ^0.13.1
 

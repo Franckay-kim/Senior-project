@@ -12,13 +12,14 @@ use Illuminate\Support\Facades\Auth;
 
 class AuthController extends Controller
 {
+   
     //signup
     public function signup(SignupRequest $request)
     {
         $data = $request->validated();
         $user = User::create([
             'name' => $data['name'],
-            'phone_number' => $data['phone_number'],
+            'email' => $data['email'],
             'password' => bcrypt($data['password'])
 
         ]);
@@ -54,4 +55,8 @@ class AuthController extends Controller
         $user->currentAccessToken()->delete();
         return response(['message' => 'Successfully logged out'], 204);
     }
+
+      public function __construct()
+    {
+header('Access-Control-Allow-Origin: http://localhost:40623');    }
 }

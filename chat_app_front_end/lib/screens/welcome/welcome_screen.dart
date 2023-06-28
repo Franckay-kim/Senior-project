@@ -6,7 +6,7 @@ import 'components/login_signup_btn.dart';
 import 'components/welcome_image.dart';
 
 class WelcomeScreen extends StatelessWidget {
-  const WelcomeScreen({Key? key}) : super(key: key);
+  const WelcomeScreen({Key? key, required token}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {

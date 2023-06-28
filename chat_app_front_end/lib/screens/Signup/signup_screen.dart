@@ -1,28 +1,28 @@
 import 'package:flutter/material.dart';
-import 'package:MeChat/constants.dart';
 import 'package:MeChat/responsive.dart';
 import '../../components/background.dart';
+import '../../constants.dart';
 import 'components/sign_up_top_image.dart';
 import 'components/signup_form.dart';
 
 class SignUpScreen extends StatelessWidget {
-  const SignUpScreen({Key? key}) : super(key: key);
+   SignUpScreen({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return Background(
       child: SingleChildScrollView(
         child: Responsive(
-          mobile: const MobileSignupScreen(),
+          mobile:  MobileSignupScreen(),
           desktop: Row(
             children: [
-              const Expanded(
+               Expanded(
                 child: SignUpScreenTopImage(),
               ),
               Expanded(
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
-                  children: const [
+                  children:  [
                     SizedBox(
                       width: 450,
                       child: SignUpForm(),
@@ -41,7 +41,7 @@ class SignUpScreen extends StatelessWidget {
 }
 
 class MobileSignupScreen extends StatelessWidget {
-  const MobileSignupScreen({
+   MobileSignupScreen({
     Key? key,
   }) : super(key: key);
 
@@ -50,9 +50,9 @@ class MobileSignupScreen extends StatelessWidget {
     return Column(
       mainAxisAlignment: MainAxisAlignment.center,
       children: <Widget>[
-        const SignUpScreenTopImage(),
+         SignUpScreenTopImage(),
         Row(
-          children: const [
+          children:  [
             Spacer(),
             Expanded(
               flex: 8,
@@ -61,7 +61,7 @@ class MobileSignupScreen extends StatelessWidget {
             Spacer(),
           ],
         ),
-        // const SocalSignUp()
+        //  SocalSignUp()
       ],
     );
   }

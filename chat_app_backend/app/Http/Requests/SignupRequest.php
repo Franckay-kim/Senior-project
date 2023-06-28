@@ -24,7 +24,7 @@ class SignupRequest extends FormRequest
         return [
             //
             'name'=>'required|string|max:50',
-            'phone_number'=>'required|string|max:20|unique:users,phone_number',
+            'email'=>'required|string|max:20|unique:users,email',
             'password'=>'required|confirmed'
         ];
     }

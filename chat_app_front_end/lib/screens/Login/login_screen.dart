@@ -6,23 +6,23 @@ import 'components/login_form.dart';
 import 'components/login_screen_top_image.dart';
 
 class LoginScreen extends StatelessWidget {
-  const LoginScreen({Key? key}) : super(key: key);
+   LoginScreen({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return Background(
       child: SingleChildScrollView(
         child: Responsive(
-          mobile: const MobileLoginScreen(),
+          mobile:  MobileLoginScreen(),
           desktop: Row(
             children: [
-              const Expanded(
+               Expanded(
                 child: LoginScreenTopImage(),
               ),
               Expanded(
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.center,
-                  children: const [
+                  children:  [
                     SizedBox(
                       width: 450,
                       child: LoginForm(),
@@ -39,7 +39,7 @@ class LoginScreen extends StatelessWidget {
 }
 
 class MobileLoginScreen extends StatelessWidget {
-  const MobileLoginScreen({
+   MobileLoginScreen({
     Key? key,
   }) : super(key: key);
 
@@ -48,9 +48,9 @@ class MobileLoginScreen extends StatelessWidget {
     return Column(
       mainAxisAlignment: MainAxisAlignment.center,
       children: <Widget>[
-        const LoginScreenTopImage(),
+         LoginScreenTopImage(),
         Row(
-          children: const [
+          children:  [
             Spacer(),
             Expanded(
               flex: 8,

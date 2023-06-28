@@ -1,53 +1,94 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 
 import '../../../components/already_have_an_account_acheck.dart';
 import '../../../constants.dart';
+import '../../../services/api_service.dart';
 import '../../Login/login_screen.dart';
 
-class SignUpForm extends StatelessWidget {
-  const SignUpForm({
-    Key? key,
-  }) : super(key: key);
+class SignUpForm extends StatefulWidget {
+  @override
+  _SignupScreenState createState() => _SignupScreenState();
+}
+
+class _SignupScreenState extends State<SignUpForm> {
+  TextEditingController emailController = TextEditingController();
+  TextEditingController passwordController = TextEditingController();
+
+  String errorMessage = '';
+
+  Future<void> handleSignup() async {
+    final email = emailController.text;
+    final password = passwordController.text;
+
+    final response = await ApiService.signup(email, password);
+
+    if (response.statusCode==200) {
+      // Signup successful
+      // Navigate to the login screen or any other screen
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => LoginScreen(),
+        ),
+      );
+    } else {
+      // Signup failed
+      setState(() {
+         errorMessage = jsonDecode(response.body)['message'];
+      });
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
     return Form(
       child: Column(
         children: [
+          SizedBox(height: 16.0),
+          Text(
+            errorMessage,
+            style: TextStyle(
+              color: Colors.red,
+            ),
+          ),
           TextFormField(
             keyboardType: TextInputType.emailAddress,
             textInputAction: TextInputAction.next,
             cursorColor: kPrimaryColor,
+            controller: emailController,
             onSaved: (email) {},
             decoration: InputDecoration(
               hintText: "Your email",
               prefixIcon: Padding(
-                padding: const EdgeInsets.all(defaultPadding),
+                padding: EdgeInsets.all(defaultPadding),
                 child: Icon(Icons.person),
               ),
             ),
           ),
           Padding(
-            padding: const EdgeInsets.symmetric(vertical: defaultPadding),
+            padding:  EdgeInsets.symmetric(vertical: defaultPadding),
             child: TextFormField(
               textInputAction: TextInputAction.done,
               obscureText: true,
+              controller: passwordController,
               cursorColor: kPrimaryColor,
               decoration: InputDecoration(
                 hintText: "Your password",
                 prefixIcon: Padding(
-                  padding: const EdgeInsets.all(defaultPadding),
+                  padding:  EdgeInsets.all(defaultPadding),
                   child: Icon(Icons.lock),
                 ),
               ),
             ),
           ),
-          const SizedBox(height: defaultPadding / 2),
+           SizedBox(height: defaultPadding / 2),
           ElevatedButton(
-            onPressed: () {},
+            onPressed: handleSignup,
             child: Text("Sign Up".toUpperCase()),
           ),
-          const SizedBox(height: defaultPadding),
+           SizedBox(height: defaultPadding),
           AlreadyHaveAnAccountCheck(
             login: false,
             press: () {
