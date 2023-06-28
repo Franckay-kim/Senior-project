@@ -3,7 +3,7 @@ import 'dart:convert';
 
 class ApiService {
   static const String baseUrl =
-      'https://miotapis-production.up.railway.app/api'; // Replace with your Laravel API URL
+      'https://senior-project-production-37a0.up.railway.app/api'; // Replace with your Laravel API URL
 
   static Future<http.Response> signup(
       String email, String password) async {
