@@ -13,18 +13,24 @@ class SignUpForm extends StatefulWidget {
 }
 
 class _SignupScreenState extends State<SignUpForm> {
+  TextEditingController nameController = TextEditingController();
   TextEditingController emailController = TextEditingController();
   TextEditingController passwordController = TextEditingController();
+  TextEditingController passwordConfirmationController =
+      TextEditingController();
 
   String errorMessage = '';
 
   Future<void> handleSignup() async {
     final email = emailController.text;
+    final name = nameController.text;
     final password = passwordController.text;
+    final password_confirmation = passwordConfirmationController.text;
 
-    final response = await ApiService.signup(email, password);
+    final response =
+        await ApiService.signup(email, password, name, password_confirmation);
 
-    if (response.statusCode==200) {
+    if (response.statusCode == 200) {
       // Signup successful
       // Navigate to the login screen or any other screen
       Navigator.push(
@@ -36,7 +42,7 @@ class _SignupScreenState extends State<SignUpForm> {
     } else {
       // Signup failed
       setState(() {
-         errorMessage = jsonDecode(response.body)['message'];
+        errorMessage = jsonDecode(response.body)['message'];
       });
     }
   }
@@ -67,8 +73,22 @@ class _SignupScreenState extends State<SignUpForm> {
               ),
             ),
           ),
+           TextFormField(
+            keyboardType: TextInputType.emailAddress,
+            textInputAction: TextInputAction.next,
+            cursorColor: kPrimaryColor,
+            controller: nameController,
+            onSaved: (name) {},
+            decoration: InputDecoration(
+              hintText: "Your name",
+              prefixIcon: Padding(
+                padding: EdgeInsets.all(defaultPadding),
+                child: Icon(Icons.person),
+              ),
+            ),
+          ),
           Padding(
-            padding:  EdgeInsets.symmetric(vertical: defaultPadding),
+            padding: EdgeInsets.symmetric(vertical: defaultPadding),
             child: TextFormField(
               textInputAction: TextInputAction.done,
               obscureText: true,
@@ -77,18 +97,34 @@ class _SignupScreenState extends State<SignUpForm> {
               decoration: InputDecoration(
                 hintText: "Your password",
                 prefixIcon: Padding(
-                  padding:  EdgeInsets.all(defaultPadding),
+                  padding: EdgeInsets.all(defaultPadding),
                   child: Icon(Icons.lock),
                 ),
               ),
             ),
           ),
-           SizedBox(height: defaultPadding / 2),
+          Padding(
+            padding: EdgeInsets.symmetric(vertical: defaultPadding),
+            child: TextFormField(
+              textInputAction: TextInputAction.done,
+              obscureText: true,
+              controller: passwordConfirmationController,
+              cursorColor: kPrimaryColor,
+              decoration: InputDecoration(
+                hintText: "Confirm password",
+                prefixIcon: Padding(
+                  padding: EdgeInsets.all(defaultPadding),
+                  child: Icon(Icons.lock),
+                ),
+              ),
+            ),
+          ),
+          SizedBox(height: defaultPadding / 2),
           ElevatedButton(
             onPressed: handleSignup,
             child: Text("Sign Up".toUpperCase()),
           ),
-           SizedBox(height: defaultPadding),
+          SizedBox(height: defaultPadding),
           AlreadyHaveAnAccountCheck(
             login: false,
             press: () {
