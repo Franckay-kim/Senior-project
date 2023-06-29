@@ -10,7 +10,7 @@ class ApiService {
   static Future<http.Response> signup(String email, String name,
       String password, String password_confirmation) async {
     final response = await http.post(
-      Uri.parse('$baseUrl/register'),
+      Uri.parse('$baseUrl/signup'),
       body: {
         'email': email,
         'name': name,
