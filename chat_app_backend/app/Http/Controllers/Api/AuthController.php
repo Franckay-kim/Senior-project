@@ -58,5 +58,5 @@ class AuthController extends Controller
 
       public function __construct()
     {
-header('Access-Control-Allow-Origin: http://localhost:40623');    }
+header('Access-Control-Allow-Origin: http://localhost:44037');    }
 }
