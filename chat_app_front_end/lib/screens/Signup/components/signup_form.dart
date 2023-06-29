@@ -52,7 +52,7 @@ class _SignupScreenState extends State<SignUpForm> {
     return Form(
       child: Column(
         children: [
-          SizedBox(height: 16.0),
+          SizedBox(height: defaultPadding/2),
           Text(
             errorMessage,
             style: TextStyle(
