@@ -56,7 +56,5 @@ class AuthController extends Controller
         return response(['message' => 'Successfully logged out'], 204);
     }
 
-      public function __construct()
-    {
-header('Access-Control-Allow-Origin: http://localhost:37867/#/');    }
+  
 }
