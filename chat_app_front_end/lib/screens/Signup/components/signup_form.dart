@@ -21,7 +21,8 @@ class _SignupScreenState extends State<SignUpForm> {
 
   String errorMessage = '';
 
-  Future<void> handleSignup() async {
+  Future<void> handleSignup(String email, String name, String password,
+      String password_confirmation) async {
     final email = emailController.text;
     final name = nameController.text;
     final password = passwordController.text;
@@ -52,7 +53,7 @@ class _SignupScreenState extends State<SignUpForm> {
     return Form(
       child: Column(
         children: [
-          SizedBox(height: defaultPadding/2),
+          SizedBox(height: defaultPadding / 2),
           Text(
             errorMessage,
             style: TextStyle(
@@ -73,7 +74,7 @@ class _SignupScreenState extends State<SignUpForm> {
               ),
             ),
           ),
-           TextFormField(
+          TextFormField(
             keyboardType: TextInputType.emailAddress,
             textInputAction: TextInputAction.next,
             cursorColor: kPrimaryColor,
@@ -121,7 +122,11 @@ class _SignupScreenState extends State<SignUpForm> {
           ),
           SizedBox(height: defaultPadding / 2),
           ElevatedButton(
-            onPressed: handleSignup,
+            onPressed: () {
+              // Call the signup function here
+              handleSignup(emailController.text, passwordController.text,
+                  nameController.text, passwordConfirmationController.text);
+            },
             child: Text("Sign Up".toUpperCase()),
           ),
           SizedBox(height: defaultPadding),

@@ -22,7 +22,7 @@ class _LoginScreenState extends State<LoginForm> {
 
   String errorMessage = '';
 
-  Future<void> handleLogin() async {
+  Future<void> handleLogin(String email, String password) async {
     final email = emailController.text;
     final password = passwordController.text;
 
@@ -95,7 +95,11 @@ class _LoginScreenState extends State<LoginForm> {
           Hero(
             tag: "login_btn",
             child: ElevatedButton(
-              onPressed: handleLogin,
+                           onPressed: () {
+                // Call the login function here
+                handleLogin(emailController.text, passwordController.text);
+              },
+
               child: Text("Login".toUpperCase()),
             ),
           ),
