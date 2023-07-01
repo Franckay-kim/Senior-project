@@ -7,7 +7,7 @@ class ApiService {
   static const String baseUrl =
       'https://senior-project-production-37a0.up.railway.app/api'; // Replace with your Laravel API URL
 
-  static Future<http.Response> signup(String email, String name,
+  static Future<Map<String, dynamic>> signup(String email, String name,
       String password, String password_confirmation) async {
     final response = await http.post(
       Uri.parse('$baseUrl/signup'),
@@ -19,8 +19,27 @@ class ApiService {
         'password_confirmation': password_confirmation,
       },
     );
-    print(response.body);
-    return response;
+   if (response.statusCode == 200) {
+      // Signup successful, parse the response body
+      final responseData = json.decode(response.body);
+      final user = responseData['user'];
+      final token = responseData['token'];
+
+      return {
+        'success': true,
+        'user': user,
+        'token': token,
+      };
+    } else {
+      // Signup failed, parse the error message
+      final responseData = json.decode(response.body);
+      final errorMessage = responseData['message'];
+
+      return {
+        'success': false,
+        'message': errorMessage,
+      };
+    }
   }
 
   static Future<http.Response> login(String email, String password) async {

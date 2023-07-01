@@ -25,15 +25,11 @@ class AuthController extends Controller
         ]);
 
         $token = $user->createToken('chat_app')->plainTextToken;
-if($user){
- return response([
+
+        return response([
             'user' => $user,
             'token' => $token
         ]);
-}else {
-    return response(['message'=>'Failed to register']);
-}
-       
     }
     //login
     public function login(LoginRequest $request)

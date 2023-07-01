@@ -31,7 +31,7 @@ class _SignupScreenState extends State<SignUpForm> {
     final response =
         await ApiService.signup(email, password, name, password_confirmation);
 
-    if (response.statusCode == 200) {
+    if (response['user'] != null && response['token'] != null) {
       // Signup successful
       // Navigate to the login screen or any other screen
       Navigator.push(
@@ -43,7 +43,7 @@ class _SignupScreenState extends State<SignUpForm> {
     } else {
       // Signup failed
       setState(() {
-        errorMessage = jsonDecode(response.body)['message'];
+        errorMessage = response['message'];
       });
     }
   }
