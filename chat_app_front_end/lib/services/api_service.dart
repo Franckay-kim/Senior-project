@@ -19,7 +19,7 @@ class ApiService {
         'password_confirmation': password_confirmation,
       },
     );
-
+    print(response.body);
     return response;
   }
 
@@ -34,7 +34,7 @@ class ApiService {
         'password': password,
       },
     );
-
+    print(response.body);
     return response;
   }
 
