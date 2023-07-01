@@ -11,6 +11,7 @@ class ApiService {
       String password, String password_confirmation) async {
     final response = await http.post(
       Uri.parse('$baseUrl/signup'),
+      headers: {'Content-Type': 'application/json'},
       body: {
         'email': email,
         'name': name,
@@ -25,6 +26,9 @@ class ApiService {
   static Future<http.Response> login(String email, String password) async {
     final response = await http.post(
       Uri.parse('$baseUrl/login'),
+      headers: {
+        'Content-Type': 'application/json',
+      },
       body: {
         'email': email,
         'password': password,
