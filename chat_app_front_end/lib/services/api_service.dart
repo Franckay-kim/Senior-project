@@ -11,7 +11,7 @@ class ApiService {
       String password, String password_confirmation) async {
     final response = await http.post(
       Uri.parse('$baseUrl/signup'),
-      headers: {'Content-Type': 'application/json'},
+      headers: {'Content-Type': 'application/x-www-form-urlencoded'},
       body: {
         'email': email,
         'name': name,
@@ -27,7 +27,7 @@ class ApiService {
     final response = await http.post(
       Uri.parse('$baseUrl/login'),
       headers: {
-        'Content-Type': 'application/json',
+        'Content-Type': 'application/x-www-form-urlencoded',
       },
       body: {
         'email': email,
