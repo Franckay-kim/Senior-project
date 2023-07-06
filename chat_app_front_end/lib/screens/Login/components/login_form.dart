@@ -4,6 +4,7 @@ import 'dart:convert';
 
 import 'package:MeChat/screens/welcome/welcome_screen.dart';
 import 'package:flutter/material.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 import '../../../components/already_have_an_account_acheck.dart';
 import '../../../constants.dart';
@@ -12,42 +13,47 @@ import '../../../services/api_service.dart';
 import '../../Signup/signup_screen.dart';
 
 class LoginForm extends StatefulWidget {
+  
   @override
   _LoginScreenState createState() => _LoginScreenState();
 }
 
 class _LoginScreenState extends State<LoginForm> {
-  TextEditingController emailController = TextEditingController();
-  TextEditingController passwordController = TextEditingController();
+  bool _isLoading = false;
+  TextEditingController _emailController = TextEditingController();
+  TextEditingController _passwordController = TextEditingController();
 
   String errorMessage = '';
 
-  Future<void> handleLogin(String email, String password) async {
-    final email = emailController.text;
-    final password = passwordController.text;
-
-    final response = await ApiService.login(email, password);
-
-    if (response.statusCode >= 200 && response.statusCode < 300) {
-      // Login successful
-      final responseBody = jsonDecode(response.body);
-      final token = responseBody['token'];
-
-      Navigator.push(
-        context,
-        MaterialPageRoute(
-          builder: (context) => WelcomeScreen(token: token),
-        ),
+  Future<void> _signIn() async {
+    setState(() {
+      _isLoading = true;
+    });
+    try {
+      await supabase.auth.signInWithPassword(
+        email: _emailController.text,
+        password: _passwordController.text,
       );
-    } else {
-      // Login failed
-      final responseBody = jsonDecode(response.body);
+      Navigator.of(context)
+          .pushAndRemoveUntil(MyHomePage.route(), (route) => false);
+    } on AuthException catch (error) {
+      context.showErrorSnackBar(message: error.message);
+    } catch (_) {
+      context.showErrorSnackBar(message: unexpectedErrorMessage);
+    }
+    if (mounted) {
       setState(() {
-        errorMessage = responseBody['message'];
+        _isLoading = true;
       });
     }
   }
 
+  @override
+  void dispose() {
+    _emailController.dispose();
+    _passwordController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -66,7 +72,7 @@ class _LoginScreenState extends State<LoginForm> {
             textInputAction: TextInputAction.next,
             cursorColor: kPrimaryColor,
             onSaved: (email) {},
-            controller: emailController,
+            controller: _emailController,
             decoration: InputDecoration(
               hintText: "Your email",
               prefixIcon: Padding(
@@ -80,7 +86,7 @@ class _LoginScreenState extends State<LoginForm> {
             child: TextFormField(
               textInputAction: TextInputAction.done,
               obscureText: true,
-              controller: passwordController,
+              controller: _passwordController,
               cursorColor: kPrimaryColor,
               decoration: InputDecoration(
                 hintText: "Your password",
@@ -95,11 +101,7 @@ class _LoginScreenState extends State<LoginForm> {
           Hero(
             tag: "login_btn",
             child: ElevatedButton(
-                           onPressed: () {
-                // Call the login function here
-                handleLogin(emailController.text, passwordController.text);
-              },
-
+              onPressed: _isLoading ? null : _signIn,
               child: Text("Login".toUpperCase()),
             ),
           ),

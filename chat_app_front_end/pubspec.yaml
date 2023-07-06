@@ -29,6 +29,10 @@ dependencies:
   # contacts_service: ^0.6.3
   intl: ^0.18.1
   http: ^1.0.0
+  pusher_client: ^2.0.0
+  supabase_flutter: ^1.0.0
+  timeago: ^3.1.0
+
 
 dev_dependencies:
   flutter_test:

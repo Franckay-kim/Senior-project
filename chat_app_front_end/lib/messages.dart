@@ -32,6 +32,11 @@ class MyHomePage extends StatefulWidget {
 
   @override
   State<MyHomePage> createState() => _MyHomePageState();
+
+  static Route<Object?> route() {
+     return MaterialPageRoute(builder: (context) => const MyHomePage());
+  }
+  
 }
 
 class _MyHomePageState extends State<MyHomePage> {

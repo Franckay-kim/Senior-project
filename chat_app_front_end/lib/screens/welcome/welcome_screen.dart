@@ -39,6 +39,10 @@ class WelcomeScreen extends StatelessWidget {
       ),
     );
   }
+
+  static Route<Object?> route() {
+     return MaterialPageRoute(builder: (context) => WelcomeScreen(token: null,));
+  }
 }
 
 class MobileWelcomeScreen extends StatelessWidget {

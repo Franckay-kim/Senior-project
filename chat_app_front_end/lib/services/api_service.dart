@@ -1,70 +1,47 @@
-// ignore_for_file: unused_import
-
-import 'package:http/http.dart' as http;
 import 'dart:convert';
+import 'package:http/http.dart' as http;
 
 class ApiService {
   static const String baseUrl =
-      'https://senior-project-production-37a0.up.railway.app/api'; // Replace with your Laravel API URL
+      'http://localhost:8000/api'; // Replace with your API base URL
 
-  static Future<Map<String, dynamic>> signup(String email, String name,
-      String password, String password_confirmation) async {
-    final response = await http.post(
-      Uri.parse('$baseUrl/signup'),
-      headers: {'Content-Type': 'application/json'},
-      body: {
-        'email': email,
-        'name': name,
-        'password': password,
-        'password_confirmation': password_confirmation,
-      },
-    );
-   if (response.statusCode == 200) {
-      // Signup successful, parse the response body
-      final responseData = json.decode(response.body);
-      final user = responseData['user'];
-      final token = responseData['token'];
+  static Future<Map<String, dynamic>> signup(String email, String password,
+      String name, String passwordConfirmation) async {
+    final url = Uri.parse('$baseUrl/signup');
 
-      return {
-        'success': true,
-        'user': user,
-        'token': token,
-      };
-    } else {
-      // Signup failed, parse the error message
-      final responseData = json.decode(response.body);
-      final errorMessage = responseData['message'];
+    Map<String, String> headers = {
+      'Content-Type': 'application/json',
+    };
 
-      return {
-        'success': false,
-        'message': errorMessage,
-      };
-    }
+    Map<String, String> body = {
+      'email': email,
+      'password': password,
+      'name': name,
+      'password_confirmation': passwordConfirmation,
+    };
+
+    http.Response response =
+        await http.post(url, headers: headers, body: jsonEncode(body));
+
+    return jsonDecode(response.body);
   }
 
-  static Future<http.Response> login(String email, String password) async {
-    final response = await http.post(
-      Uri.parse('$baseUrl/login'),
-      headers: {
-        'Content-Type': 'application/x-www-form-urlencoded',
-      },
-      body: {
-        'email': email,
-        'password': password,
-      },
-    );
-    print(response.body);
-    return response;
-  }
+  static Future<Map<String, dynamic>> login(
+      String email, String password) async {
+    final url = Uri.parse('$baseUrl/login');
 
-  static Future<http.Response> logout(String token) async {
-    final response = await http.post(
-      Uri.parse('$baseUrl/logout'),
-      headers: {
-        'Authorization': 'Bearer $token',
-      },
-    );
+    Map<String, String> headers = {
+      'Content-Type': 'application/json',
+    };
 
-    return response;
+    Map<String, String> body = {
+      'email': email,
+      'password': password,
+    };
+
+    http.Response response =
+        await http.post(url, headers: headers, body: jsonEncode(body));
+
+    return jsonDecode(response.body);
   }
 }

@@ -1,10 +1,11 @@
-import 'dart:convert';
-
+import 'package:MeChat/chats.dart';
+import 'package:MeChat/messages.dart';
+import 'package:MeChat/screens/welcome/welcome_screen.dart';
 import 'package:flutter/material.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 import '../../../components/already_have_an_account_acheck.dart';
 import '../../../constants.dart';
-import '../../../services/api_service.dart';
 import '../../Login/login_screen.dart';
 
 class SignUpForm extends StatefulWidget {
@@ -13,44 +14,42 @@ class SignUpForm extends StatefulWidget {
 }
 
 class _SignupScreenState extends State<SignUpForm> {
-  TextEditingController nameController = TextEditingController();
-  TextEditingController emailController = TextEditingController();
-  TextEditingController passwordController = TextEditingController();
-  TextEditingController passwordConfirmationController =
-      TextEditingController();
+  final bool _isLoading = false;
 
+  final _formKey = GlobalKey<FormState>();
+
+  final _emailController = TextEditingController();
+  final _passwordController = TextEditingController();
+  final _usernameController = TextEditingController();
+  final _passwordConfirmationController = TextEditingController();
   String errorMessage = '';
 
-  Future<void> handleSignup(String email, String name, String password,
-      String password_confirmation) async {
-    final email = emailController.text;
-    final name = nameController.text;
-    final password = passwordController.text;
-    final password_confirmation = passwordConfirmationController.text;
-
-    final response =
-        await ApiService.signup(email, password, name, password_confirmation);
-
-    if (response['user'] != null && response['token'] != null) {
-      // Signup successful
-      // Navigate to the login screen or any other screen
-      Navigator.push(
-        context,
-        MaterialPageRoute(
-          builder: (context) => LoginScreen(),
-        ),
-      );
-    } else {
-      // Signup failed
-      setState(() {
-        errorMessage = response['message'];
-      });
+  Future<void> _signUp() async {
+    final isValid = _formKey.currentState!.validate();
+    if (!isValid) {
+      return;
+    }
+    final email = _emailController.text;
+    final password = _passwordController.text;
+    final username = _usernameController.text;
+    try {
+      await supabase.auth.signUp(
+          email: email, password: password, data: {'username': username});
+      Navigator.of(context)
+          .pushAndRemoveUntil(MyHomePage.route(), (route) => false);
+    } on AuthException catch (error) {
+      print(error.message);
+      context.showErrorSnackBar(message: error.message);
+    } catch (error) {
+      print(unexpectedErrorMessage);
+      context.showErrorSnackBar(message: unexpectedErrorMessage);
     }
   }
 
   @override
   Widget build(BuildContext context) {
     return Form(
+      key: _formKey,
       child: Column(
         children: [
           SizedBox(height: defaultPadding / 2),
@@ -64,8 +63,14 @@ class _SignupScreenState extends State<SignUpForm> {
             keyboardType: TextInputType.emailAddress,
             textInputAction: TextInputAction.next,
             cursorColor: kPrimaryColor,
-            controller: emailController,
+            controller: _emailController,
             onSaved: (email) {},
+            validator: (val) {
+              if (val == null || val.isEmpty) {
+                return 'Required';
+              }
+              return null;
+            },
             decoration: InputDecoration(
               hintText: "Your email",
               prefixIcon: Padding(
@@ -78,8 +83,18 @@ class _SignupScreenState extends State<SignUpForm> {
             keyboardType: TextInputType.emailAddress,
             textInputAction: TextInputAction.next,
             cursorColor: kPrimaryColor,
-            controller: nameController,
-            onSaved: (name) {},
+            controller: _usernameController,
+            onSaved: (username) {},
+            validator: (val) {
+              if (val == null || val.isEmpty) {
+                return 'Required';
+              }
+              final isValid = RegExp(r'^[A-Za-z0-9_]{3,24}$').hasMatch(val);
+              if (!isValid) {
+                return '3-24 long with alphanumeric or underscore';
+              }
+              return null;
+            },
             decoration: InputDecoration(
               hintText: "Your name",
               prefixIcon: Padding(
@@ -93,8 +108,17 @@ class _SignupScreenState extends State<SignUpForm> {
             child: TextFormField(
               textInputAction: TextInputAction.done,
               obscureText: true,
-              controller: passwordController,
+              controller: _passwordController,
               cursorColor: kPrimaryColor,
+              validator: (val) {
+                if (val == null || val.isEmpty) {
+                  return 'Required';
+                }
+                if (val.length < 6) {
+                  return '6 characters minimum';
+                }
+                return null;
+              },
               decoration: InputDecoration(
                 hintText: "Your password",
                 prefixIcon: Padding(
@@ -109,7 +133,19 @@ class _SignupScreenState extends State<SignUpForm> {
             child: TextFormField(
               textInputAction: TextInputAction.done,
               obscureText: true,
-              controller: passwordConfirmationController,
+              validator: (val) {
+                if (val == null || val.isEmpty) {
+                  return 'Required';
+                }
+                if (val.length < 6) {
+                  return '6 characters minimum';
+                }
+                if (_passwordController.text != val) {
+                  return 'The passwords do not match';
+                }
+                return null;
+              },
+              controller: _passwordConfirmationController,
               cursorColor: kPrimaryColor,
               decoration: InputDecoration(
                 hintText: "Confirm password",
@@ -122,11 +158,7 @@ class _SignupScreenState extends State<SignUpForm> {
           ),
           SizedBox(height: defaultPadding / 2),
           ElevatedButton(
-            onPressed: () {
-              // Call the signup function here
-              handleSignup(emailController.text, passwordController.text,
-                  nameController.text, passwordConfirmationController.text);
-            },
+            onPressed: _isLoading ? null : _signUp,
             child: Text("Sign Up".toUpperCase()),
           ),
           SizedBox(height: defaultPadding),

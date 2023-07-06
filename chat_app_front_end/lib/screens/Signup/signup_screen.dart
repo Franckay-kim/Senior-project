@@ -6,23 +6,23 @@ import 'components/sign_up_top_image.dart';
 import 'components/signup_form.dart';
 
 class SignUpScreen extends StatelessWidget {
-   SignUpScreen({Key? key}) : super(key: key);
+  SignUpScreen({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return Background(
       child: SingleChildScrollView(
         child: Responsive(
-          mobile:  MobileSignupScreen(),
+          mobile: MobileSignupScreen(),
           desktop: Row(
             children: [
-               Expanded(
+              Expanded(
                 child: SignUpScreenTopImage(),
               ),
               Expanded(
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
-                  children:  [
+                  children: [
                     SizedBox(
                       width: 450,
                       child: SignUpForm(),
@@ -38,10 +38,14 @@ class SignUpScreen extends StatelessWidget {
       ),
     );
   }
+
+  static Route<Object?> route() {
+    return MaterialPageRoute(builder: (context) => SignUpScreen());
+  }
 }
 
 class MobileSignupScreen extends StatelessWidget {
-   MobileSignupScreen({
+  MobileSignupScreen({
     Key? key,
   }) : super(key: key);
 
@@ -50,9 +54,9 @@ class MobileSignupScreen extends StatelessWidget {
     return Column(
       mainAxisAlignment: MainAxisAlignment.center,
       children: <Widget>[
-         SignUpScreenTopImage(),
+        SignUpScreenTopImage(),
         Row(
-          children:  [
+          children: [
             Spacer(),
             Expanded(
               flex: 8,

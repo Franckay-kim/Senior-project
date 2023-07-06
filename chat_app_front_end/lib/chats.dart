@@ -1,4 +1,22 @@
 import 'package:flutter/material.dart';
+import 'package:pusher_client/pusher_client.dart';
+
+void main() {
+  runApp(ChatsApp());
+}
+
+class ChatsApp extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      title: 'Chat App',
+      theme: ThemeData(
+        primarySwatch: Colors.blue,
+      ),
+      home: ChatScreen(),
+    );
+  }
+}
 
 class ChatScreen extends StatefulWidget {
   @override
@@ -7,6 +25,36 @@ class ChatScreen extends StatefulWidget {
 
 class _ChatScreenState extends State<ChatScreen> {
   List<Message> messages = [];
+  late PusherClient pusher;
+  late Channel channel; // Add a nullable type
+
+  @override
+  void initState() {
+    super.initState();
+    _initPusher();
+  }
+
+  void _initPusher() {
+    pusher = new PusherClient(
+      "PUSHER_APP_KEY", // Replace with your Pusher app key
+      PusherOptions(
+        cluster: "PUSHER_CLUSTER", // Replace with your Pusher cluster
+        encrypted: true,
+      ),
+    );
+
+    channel = pusher.subscribe('chat'); // Use the null-aware operator
+
+    channel.bind('new-message', (data) {
+      // var message = Message(
+      // );
+      setState(() {
+        //  messages.add(message);
+      });
+    });
+
+    pusher.connect(); // Use the null-aware operator
+  }
 
   void addMessage(Message message) {
     setState(() {
@@ -25,7 +73,11 @@ class _ChatScreenState extends State<ChatScreen> {
           Expanded(
             child: MessagesScreen(messages: messages),
           ),
-          ChatInputField(onSendMessage: addMessage),
+          ChatInputField(
+            onSendMessage: addMessage,
+            pusher: pusher,
+            channel: channel,
+          ),
         ],
       ),
     );
@@ -64,8 +116,13 @@ class MessageTile extends StatelessWidget {
 
 class ChatInputField extends StatefulWidget {
   final Function onSendMessage;
+  final PusherClient pusher;
+  final Channel channel;
 
-  ChatInputField({required this.onSendMessage});
+  ChatInputField(
+      {required this.onSendMessage,
+      required this.pusher,
+      required this.channel});
 
   @override
   _ChatInputFieldState createState() => _ChatInputFieldState();
@@ -73,6 +130,20 @@ class ChatInputField extends StatefulWidget {
 
 class _ChatInputFieldState extends State<ChatInputField> {
   TextEditingController textEditingController = TextEditingController();
+
+  void _sendMessage(String messageContent) {
+    if (messageContent.isNotEmpty) {
+      widget.onSendMessage(Message(sender: 'Me', content: messageContent));
+
+      // Send the message through Pusher if 'widget.pusher' is not null
+      widget.channel.trigger('new-message', {
+        'sender': 'Me',
+        'content': messageContent,
+      });
+
+      textEditingController.clear();
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -86,18 +157,14 @@ class _ChatInputFieldState extends State<ChatInputField> {
               decoration: InputDecoration(
                 hintText: 'Type a message...',
               ),
+              onSubmitted: _sendMessage,
             ),
           ),
           IconButton(
             icon: Icon(Icons.send),
             onPressed: () {
               String messageContent = textEditingController.text;
-              if (messageContent.isNotEmpty) {
-                widget.onSendMessage(
-                  Message(sender: 'Me', content: messageContent),
-                );
-                textEditingController.clear();
-              }
+              _sendMessage(messageContent);
             },
           ),
         ],
@@ -117,16 +184,3 @@ class Message {
   runApp(ChatsApp());
 }*/
 
-class ChatsApp extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Chat App',
-      theme: ThemeData(
-        primarySwatch: Colors.blue,
-      ),
-      home: ChatScreen(),
-    );
-  }
-}
- 

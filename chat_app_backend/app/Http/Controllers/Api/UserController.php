@@ -39,8 +39,26 @@ class UserController extends Controller
                 'receiver_id' => $data['receiver_id']
             ]
         );
-        broadcast(new NewChatEvent($chat))->toOthers();
-        return compact('chat');
+            $pusher = new Pusher(
+            env('PUSHER_APP_KEY'),
+            env('PUSHER_APP_SECRET'),
+            env('PUSHER_APP_ID'),
+            [
+                'cluster' => env('PUSHER_APP_CLUSTER'),
+                'useTLS' => true,
+            ]
+        );
+
+        $message = [
+            'sender_id' => $request->input('sender_id'),
+            'receiver_id' => $request->input('receiver_id'),
+            'message' => $request->input('message'),
+        ];
+
+        // Broadcast the message to a private channel based on the receiver_id
+        $pusher->trigger('private-channel-' . $request->input('receiver_id'), 'new-message', $message);
+
+        return response()->json(['status' => 'success']);
     }
 
     /**
