@@ -1,6 +1,4 @@
-import 'package:MeChat/chats.dart';
 import 'package:MeChat/messages.dart';
-import 'package:MeChat/screens/welcome/welcome_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
@@ -38,10 +36,10 @@ class _SignupScreenState extends State<SignUpForm> {
       Navigator.of(context)
           .pushAndRemoveUntil(MyHomePage.route(), (route) => false);
     } on AuthException catch (error) {
-      print(error.message);
+    //  print(error.message);
       context.showErrorSnackBar(message: error.message);
     } catch (error) {
-      print(unexpectedErrorMessage);
+     // print(unexpectedErrorMessage);
       context.showErrorSnackBar(message: unexpectedErrorMessage);
     }
   }
