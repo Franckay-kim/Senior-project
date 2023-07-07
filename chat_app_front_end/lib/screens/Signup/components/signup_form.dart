@@ -1,9 +1,9 @@
-import 'package:MeChat/messages.dart';
 import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 import '../../../components/already_have_an_account_acheck.dart';
 import '../../../constants.dart';
+import '../../../messages.dart';
 import '../../Login/login_screen.dart';
 
 class SignUpForm extends StatefulWidget {
