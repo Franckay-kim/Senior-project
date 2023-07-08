@@ -32,6 +32,7 @@ dependencies:
   pusher_client: ^2.0.0
   supabase_flutter: ^1.0.0
   timeago: ^3.1.0
+  workmanager: ^0.5.1
 
 
 dev_dependencies:

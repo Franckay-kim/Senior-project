@@ -1,186 +1,142 @@
 import 'package:flutter/material.dart';
-import 'package:pusher_client/pusher_client.dart';
+import 'package:supabase/supabase.dart';
+import 'package:intl/intl.dart';
 
-void main() {
-  runApp(ChatsApp());
-}
+class ChatsPage extends StatefulWidget {
+  final String recipientId;
 
-class ChatsApp extends StatelessWidget {
+  const ChatsPage({Key? key, required this.recipientId}) : super(key: key);
+
   @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Chat App',
-      theme: ThemeData(
-        primarySwatch: Colors.blue,
-      ),
-      home: ChatScreen(),
-    );
-  }
+  _ChatsPageState createState() => _ChatsPageState();
 }
 
-class ChatScreen extends StatefulWidget {
-  @override
-  _ChatScreenState createState() => _ChatScreenState();
-}
-
-class _ChatScreenState extends State<ChatScreen> {
-  List<Message> messages = [];
-  late PusherClient pusher;
-  late Channel channel; // Add a nullable type
+class _ChatsPageState extends State<ChatsPage> {
+  final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
+  late SupabaseClient _supabaseClient;
+  List<Map<String, dynamic>> _messages = [];
+  TextEditingController _messageController = TextEditingController();
 
   @override
   void initState() {
     super.initState();
-    _initPusher();
+    _supabaseClient = SupabaseClient('https://lvpjqqiicmztxjpdbgdz.supabase.co',
+        'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imx2cGpxcWlpY216dHhqcGRiZ2R6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE2ODg2MDA2NzEsImV4cCI6MjAwNDE3NjY3MX0.cF8vWd-cgMED4DM6WK19r69VM_uXrrMXb7guyDxJq7U');
+    fetchMessages();
   }
 
-  void _initPusher() {
-    pusher = new PusherClient(
-      "PUSHER_APP_KEY", // Replace with your Pusher app key
-      PusherOptions(
-        cluster: "PUSHER_CLUSTER", // Replace with your Pusher cluster
-        encrypted: true,
-      ),
-    );
+  Future<void> fetchMessages() async {
+    print(widget.recipientId);
+    final senderId = _supabaseClient.auth.currentUser?.id;
+    final response = await _supabaseClient
+        .from('messages')
+        .select('sender_id, receiver_id, content, created_at')
+        .or(
+          'sender_id.eq.$senderId,receiver_id.eq.${widget.recipientId}',
+        )
+        .order('created_at', ascending: true)
+        .execute();
 
-    channel = pusher.subscribe('chat'); // Use the null-aware operator
-
-    channel.bind('new-message', (data) {
-      // var message = Message(
-      // );
+    if (response.status == 200) {
       setState(() {
-        //  messages.add(message);
+        _messages =
+            (response.data as List<dynamic>).cast<Map<String, dynamic>>();
       });
-    });
-
-    pusher.connect(); // Use the null-aware operator
+    } else {
+      // Handle error
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Failed to fetch messages')),
+      );
+    }
   }
 
-  void addMessage(Message message) {
-    setState(() {
-      messages.add(message);
-    });
-  }
+  Future<void> sendMessage() async {
+    final messageContent = _messageController.text.trim();
 
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text('Chat'),
-      ),
-      body: Column(
-        children: [
-          Expanded(
-            child: MessagesScreen(messages: messages),
-          ),
-          ChatInputField(
-            onSendMessage: addMessage,
-            pusher: pusher,
-            channel: channel,
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class MessagesScreen extends StatelessWidget {
-  final List<Message> messages;
-
-  MessagesScreen({required this.messages});
-
-  @override
-  Widget build(BuildContext context) {
-    return ListView.builder(
-      itemCount: messages.length,
-      itemBuilder: (BuildContext context, int index) {
-        return MessageTile(message: messages[index]);
-      },
-    );
-  }
-}
-
-class MessageTile extends StatelessWidget {
-  final Message message;
-
-  MessageTile({required this.message});
-
-  @override
-  Widget build(BuildContext context) {
-    return ListTile(
-      title: Text(message.sender),
-      subtitle: Text(message.content),
-    );
-  }
-}
-
-class ChatInputField extends StatefulWidget {
-  final Function onSendMessage;
-  final PusherClient pusher;
-  final Channel channel;
-
-  ChatInputField(
-      {required this.onSendMessage,
-      required this.pusher,
-      required this.channel});
-
-  @override
-  _ChatInputFieldState createState() => _ChatInputFieldState();
-}
-
-class _ChatInputFieldState extends State<ChatInputField> {
-  TextEditingController textEditingController = TextEditingController();
-
-  void _sendMessage(String messageContent) {
     if (messageContent.isNotEmpty) {
-      widget.onSendMessage(Message(sender: 'Me', content: messageContent));
+      final senderId = _supabaseClient.auth.currentUser?.id;
 
-      // Send the message through Pusher if 'widget.pusher' is not null
-      widget.channel.trigger('new-message', {
-        'sender': 'Me',
-        'content': messageContent,
-      });
+      if (senderId != null) {
+        final response = await _supabaseClient.from('messages').insert({
+          'sender_id': senderId,
+          'receiver_id': widget.recipientId,
+          'content': messageContent
+        }).execute();
 
-      textEditingController.clear();
+        if (response.status == 201) {
+          _messageController.clear();
+          fetchMessages();
+        } else {
+          // Handle error
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Failed to send message')),
+          );
+        }
+      }
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      padding: EdgeInsets.all(8.0),
-      child: Row(
+    return Scaffold(
+      key: _scaffoldKey,
+      appBar: AppBar(
+        title: Text('Chat with User'),
+      ),
+      body: Column(
         children: [
           Expanded(
-            child: TextField(
-              controller: textEditingController,
-              decoration: InputDecoration(
-                hintText: 'Type a message...',
-              ),
-              onSubmitted: _sendMessage,
+            child: ListView.builder(
+              itemCount: _messages.length,
+              itemBuilder: (context, index) {
+                final message = _messages[index];
+                final senderId = message['sender_id'] as String;
+                final messageContent = message['content'] as String;
+                final createdAt =
+                    DateTime.parse(message['created_at'] as String);
+                final isSentMessage =
+                    senderId == _supabaseClient.auth.currentUser?.id;
+
+                return ListTile(
+                  title: Text(
+                    isSentMessage ? 'You' : 'User',
+                    style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  subtitle: Text(
+                    messageContent,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                  trailing: Text(
+                    DateFormat('HH:mm').format(createdAt),
+                  ),
+                );
+              },
             ),
           ),
-          IconButton(
-            icon: Icon(Icons.send),
-            onPressed: () {
-              String messageContent = textEditingController.text;
-              _sendMessage(messageContent);
-            },
+          Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: Row(
+              children: [
+                Expanded(
+                  child: TextField(
+                    controller: _messageController,
+                    decoration: InputDecoration(
+                      hintText: 'Type a message',
+                    ),
+                  ),
+                ),
+                IconButton(
+                  onPressed: sendMessage,
+                  icon: Icon(Icons.send),
+                ),
+              ],
+            ),
           ),
         ],
       ),
     );
   }
 }
-
-class Message {
-  final String sender;
-  final String content;
-
-  Message({required this.sender, required this.content});
-}
-
-/*void main() {
-  runApp(ChatsApp());
-}*/
-

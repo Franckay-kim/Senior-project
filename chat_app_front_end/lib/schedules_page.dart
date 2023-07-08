@@ -1,13 +1,15 @@
 // ignore_for_file: unused_import
 
 import 'package:MeChat/constants.dart';
+import 'package:MeChat/messages.dart';
+import 'package:MeChat/schedule.dart';
 import 'package:MeChat/screens/Login/login_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:supabase/supabase.dart';
 import 'package:intl/intl.dart';
 
 import 'chats.dart';
-import 'schedules_page.dart';
+import 'status.dart';
 
 void main() {
   runApp(const MyApp());
@@ -24,30 +26,30 @@ class MyApp extends StatelessWidget {
         drawerTheme: const DrawerThemeData(scrimColor: Colors.transparent),
       ),
       title: 'Chat App',
-      home: const MyHomePage(),
+      home: const SchedulePage(),
     );
   }
 }
 
-class MyHomePage extends StatefulWidget {
-  const MyHomePage({Key? key}) : super(key: key);
+class SchedulePage extends StatefulWidget {
+  const SchedulePage({Key? key}) : super(key: key);
 
   @override
-  State<MyHomePage> createState() => _MyHomePageState();
+  State<SchedulePage> createState() => _SchedulePageState();
 
   static Route<Object?> route() {
-    return MaterialPageRoute(builder: (context) => const MyHomePage());
+    return MaterialPageRoute(builder: (context) => const SchedulePage());
   }
 }
 
-class _MyHomePageState extends State<MyHomePage> {
+class _SchedulePageState extends State<SchedulePage> {
   final GlobalKey<ScaffoldState> _globalKey = GlobalKey();
 
   final supabaseUrl = 'https://lvpjqqiicmztxjpdbgdz.supabase.co';
   final supabaseKey =
       'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imx2cGpxcWlpY216dHhqcGRiZ2R6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE2ODg2MDA2NzEsImV4cCI6MjAwNDE3NjY3MX0.cF8vWd-cgMED4DM6WK19r69VM_uXrrMXb7guyDxJq7U';
   final tableName = 'messages';
-  final loggedInUserId = supabase.auth.currentSession?.user.id;
+  final loggedInUserId = supabase.auth.currentSession?.user.id ?? '';
 
   late SupabaseClient supabaseClient;
   List<Map<String, dynamic>> messages = [];
@@ -61,13 +63,8 @@ class _MyHomePageState extends State<MyHomePage> {
 
   Future<void> fetchMessages() async {
     final response = await supabaseClient
-        .from(tableName)
-        .select('sender_id, receiver_id, content, created_at')
-        .or(
-          'sender_id.eq.$loggedInUserId,receiver_id.eq.$loggedInUserId',
-        )
-        .order('created_at', ascending: false)
-        .limit(10)
+        .from('schedules')
+        .select('scheduled_time, delivered')
         .execute();
 
     if (response.status != 200) {
@@ -78,11 +75,6 @@ class _MyHomePageState extends State<MyHomePage> {
         messages = (response.data as List<dynamic>)
             .cast<Map<String, dynamic>>()
             .toList();
-
-        final latestMessage = messages.isNotEmpty ? messages[0] : null;
-        final recipientId = latestMessage?['receiver_id'] as String;
-        messages[0]['recipient_id'] = recipientId;
-        print(recipientId);
       });
     }
   }
@@ -128,17 +120,15 @@ class _MyHomePageState extends State<MyHomePage> {
         final isSentMessage = senderId == loggedInUserId;
         final otherUserId = isSentMessage ? receiverId : senderId;
 
+        final isDelivered = createdAt.isBefore(DateTime.now());
+
         return GestureDetector(
           onTap: () {
-            // Navigate to a new screen when an item is
-            final String recipientId = (receiverId == loggedInUserId)
-                ? message['sender_id'] as String
-                : message['receiver_id'] as String;
             Navigator.push(
               context,
               MaterialPageRoute(
                 builder: (context) {
-                  return ChatsPage(recipientId: recipientId);
+                  return SendMessagePage(senderId: loggedInUserId);
                 },
               ),
             );
@@ -171,9 +161,7 @@ class _MyHomePageState extends State<MyHomePage> {
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                 ),
-                trailing: Text(
-                  DateFormat('HH:mm').format(createdAt),
-                ),
+                trailing: isDelivered ? Text('Delivered') : null,
               ),
               const Divider(
                 indent: 70,
@@ -321,7 +309,16 @@ class _MyHomePageState extends State<MyHomePage> {
             Icons.edit_outlined,
             size: 30,
           ),
-          onPressed: () {},
+          onPressed: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) {
+                  return SendMessagePage(senderId: loggedInUserId);
+                },
+              ),
+            );
+          },
         ),
       ),
       drawer: Drawer(
@@ -429,7 +426,7 @@ class _MyHomePageState extends State<MyHomePage> {
                             context,
                             MaterialPageRoute(
                               builder: (context) {
-                                return SchedulePage();
+                                return MyHomePage();
                               },
                             ),
                           );

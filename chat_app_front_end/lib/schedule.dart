@@ -1,65 +1,81 @@
-// ignore_for_file: deprecated_member_use
-
+import 'package:MeChat/services/profile_schedule.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
-class MyApp extends StatelessWidget {
+class SendMessagePage extends StatefulWidget {
+  final String senderId;
+
+  const SendMessagePage({Key? key, required this.senderId}) : super(key: key);
   @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Messaging App',
-      theme: ThemeData(
-        primarySwatch: Colors.deepOrange,
-      ),
-      initialRoute: '/',
-      routes: {
-        '/': (context) => HomePage(),
-        //'/profile': (context) => ProfilePage(),
-      },
-    );
-  }
+  _SendMessagePageState createState() => _SendMessagePageState();
 }
 
+class _SendMessagePageState extends State<SendMessagePage> {
+  late List<ProfileSchedule> recipients;
+  late List<ProfileSchedule> selectedRecipients;
+  late TextEditingController messageController;
+  late TextEditingController scheduleTimeController;
 
-
-class HomePage extends StatefulWidget {
-  @override
-  _HomePageState createState() => _HomePageState();
-}
-
-class _HomePageState extends State<HomePage> {
-  final TextEditingController _messageController = TextEditingController();
-  final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
-      FlutterLocalNotificationsPlugin();
+  final supabase = SupabaseClient('https://lvpjqqiicmztxjpdbgdz.supabase.co',
+      'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imx2cGpxcWlpY216dHhqcGRiZ2R6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE2ODg2MDA2NzEsImV4cCI6MjAwNDE3NjY3MX0.cF8vWd-cgMED4DM6WK19r69VM_uXrrMXb7guyDxJq7U');
 
   @override
   void initState() {
     super.initState();
-    final InitializationSettings initializationSettings =
-        InitializationSettings(
-            android: AndroidInitializationSettings('@mipmap/ic_launcher'));
-    flutterLocalNotificationsPlugin.initialize(initializationSettings);
+    recipients = [];
+    selectedRecipients = [];
+    messageController = TextEditingController();
+    scheduleTimeController = TextEditingController();
+    fetchRecipients();
   }
 
+  Future<void> fetchRecipients() async {
+    final response = await supabase.from('profiles').select().execute();
+    if (response.status != 200) {
+      final profiles = response.data as List<dynamic>;
+      setState(() {
+        recipients = profiles
+            .map((profile) => ProfileSchedule(
+                  id: profile['id'].toString(), // Convert the id to a string
+                  username: profile['name'] as String,
+                ))
+            .toList();
+      });
+    } else {
+      print('Error fetching recipients: ${Error()}');
+    }
+  }
 
-  Future<void> _scheduleNotification(DateTime scheduledTime) async {
-    if (_messageController.text.isNotEmpty && scheduledTime != true) {
-      const AndroidNotificationDetails androidPlatformChannelSpecifics =
-          AndroidNotificationDetails(
-        '1',
-        'Messaging App',
-        importance: Importance.max,
-        priority: Priority.high,
-        showWhen: false,
-      );
-      const NotificationDetails platformChannelSpecifics =
-          NotificationDetails(android: androidPlatformChannelSpecifics);
-      flutterLocalNotificationsPlugin.schedule(
-          0,
-          'Messaging App',
-          _messageController.text,
-          scheduledTime,
-          platformChannelSpecifics);
+  void toggleRecipient(ProfileSchedule profile) {
+    setState(() {
+      if (selectedRecipients.contains(profile)) {
+        selectedRecipients.remove(profile);
+      } else {
+        selectedRecipients.add(profile);
+      }
+    });
+  }
+
+  Future<void> sendMessage() async {
+    final recipientIds =
+        selectedRecipients.map((profile) => profile.id).toList();
+    final senderId = 123; // Replace with the actual sender ID
+    final scheduledTime = DateTime.parse(scheduleTimeController.text);
+    final content = messageController.text;
+
+    final response = await supabase.from('schedules').insert([
+      {
+        'recipient_ids': recipientIds,
+        'sender_id': senderId,
+        'scheduled_time': scheduledTime.toIso8601String(),
+        'content': content,
+      }
+    ]).execute();
+
+    if (response.status != 200) {
+      print('Message scheduled successfully');
+    } else {
+      print('Error scheduling message: ${Error()}');
     }
   }
 
@@ -67,44 +83,53 @@ class _HomePageState extends State<HomePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Scheduler'),
+        title: Text('Send Message'),
       ),
-      body: Center(
+      body: Padding(
+        padding: EdgeInsets.all(16.0),
         child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Text('Choose recipients:'),
+            SizedBox(height: 8.0),
+            Wrap(
+              spacing: 8.0,
+              runSpacing: 8.0,
+              children: recipients
+                  .map((profile) => GestureDetector(
+                        onTap: () => toggleRecipient(profile),
+                        child: Chip(
+                          label: Text(profile.username),
+                          backgroundColor: selectedRecipients.contains(profile)
+                              ? Colors.blue
+                              : Colors.grey,
+                        ),
+                      ))
+                  .toList(),
+            ),
+            SizedBox(height: 16.0),
+            Text('Message:'),
+            SizedBox(height: 8.0),
             TextField(
-              controller: _messageController,
+              controller: messageController,
+              maxLines: 4,
               decoration: InputDecoration(
-                hintText: 'Enter your message',
+                border: OutlineInputBorder(),
               ),
             ),
-             SizedBox(height: 20),
+            SizedBox(height: 16.0),
+            Text('Schedule Time:'),
+            SizedBox(height: 8.0),
+            TextField(
+              controller: scheduleTimeController,
+              decoration: InputDecoration(
+                border: OutlineInputBorder(),
+              ),
+            ),
+            SizedBox(height: 16.0),
             ElevatedButton(
-              onPressed: () async {
-                final DateTime? picked = await showDatePicker(
-                  context: context,
-                  initialDate: DateTime.now(),
-                  firstDate: DateTime(2000),
-                  lastDate: DateTime(2025),
-                );
-                if (picked != null) {
-                  final TimeOfDay? timeOfDay = await showTimePicker(
-                    context: context,
-                    initialTime: TimeOfDay.now(),
-                  );
-                  if (timeOfDay != null) {
-                    final DateTime scheduledTime = DateTime(
-                        picked.year,
-                        picked.month,
-                        picked.day,
-                        timeOfDay.hour,
-                        timeOfDay.minute);
-                    _scheduleNotification(scheduledTime);
-                     }
-                }
-              },
-              child: Text('Schedule Message'),
+              onPressed: sendMessage,
+              child: Text('Send Message'),
             ),
           ],
         ),
