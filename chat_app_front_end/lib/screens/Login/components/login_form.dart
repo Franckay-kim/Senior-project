@@ -13,7 +13,6 @@ import '../../../services/message_service.dart';
 import '../../Signup/signup_screen.dart';
 
 class LoginForm extends StatefulWidget {
-  
   @override
   _LoginScreenState createState() => _LoginScreenState();
 }
@@ -34,6 +33,8 @@ class _LoginScreenState extends State<LoginForm> {
         email: _emailController.text,
         password: _passwordController.text,
       );
+      _showSuccessNotification(); // Show success notification
+
       Navigator.of(context)
           .pushAndRemoveUntil(MyHomePage.route(), (route) => false);
     } on AuthException catch (error) {
@@ -53,6 +54,15 @@ class _LoginScreenState extends State<LoginForm> {
     _emailController.dispose();
     _passwordController.dispose();
     super.dispose();
+  }
+
+  void _showSuccessNotification() {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text('Log in successful!'), // Customize the message as needed
+        backgroundColor: Colors.green, // Customize the color as needed
+      ),
+    );
   }
 
   @override

@@ -1,5 +1,3 @@
-// ignore_for_file: unused_import
-
 import 'package:MeChat/constants.dart';
 import 'package:MeChat/screens/Login/login_screen.dart';
 import 'package:MeChat/users_page.dart';
@@ -90,17 +88,15 @@ class _MyHomePageState extends State<MyHomePage> {
     }
   }
 
-  Future<String> getSenderInitials(String senderId) async {
-    print(loggedInUserId);
-    // ignore: unnecessary_null_comparison
-    if (senderId == null) {
-      return 'N/A'; // Provide a fallback value when senderId is null
+  Future<String> getUsername(String userId) async {
+    if (userId == null) {
+      return 'N/A'; // Provide a fallback value when userId is null
     }
 
     final response = await supabaseClient
         .from('profiles')
         .select('username')
-        .eq('id', senderId)
+        .eq('id', userId)
         .execute();
 
     if (response.status != 200) {
@@ -108,18 +104,12 @@ class _MyHomePageState extends State<MyHomePage> {
       throw Error();
     } else {
       final username = response.data?[0]['username'] as String? ?? 'Unknown';
-      print(username);
-      if (username.isNotEmpty) {
-        final initials = username.trim().split(' ').map((e) => e[0]).join('');
-        return initials.toUpperCase();
-      } else {
-        return 'N/A'; // Fallback value for initials when username is null or empty
-      }
+      return username;
     }
   }
 
   Widget _buildMessageList() {
-     if (messages.isEmpty) {
+    if (messages.isEmpty) {
       return Center(
         child: Text(
           'No messages yet. Click on the button at the bottom left to start chatting!',
@@ -177,11 +167,12 @@ class _MyHomePageState extends State<MyHomePage> {
             children: [
               ListTile(
                 leading: FutureBuilder<String>(
-                  future: getSenderInitials(otherUserId),
+                  future: getUsername(otherUserId),
                   builder: (context, snapshot) {
                     if (snapshot.hasData) {
+                      final username = snapshot.data?[0].toUpperCase() ?? 'Unknown';
                       return CircleAvatar(
-                        child: Text(snapshot.data ?? ''),
+                        child: Text(username),
                       );
                     } else if (snapshot.hasError) {
                       return Icon(Icons.error);
@@ -190,11 +181,33 @@ class _MyHomePageState extends State<MyHomePage> {
                     }
                   },
                 ),
-                title: Text(
-                  isSentMessage ? 'Sent to ' : 'Received from',
-                  style: TextStyle(
-                    fontWeight: FontWeight.bold,
-                  ),
+                title: FutureBuilder<String>(
+                  future: getUsername(otherUserId),
+                  builder: (context, snapshot) {
+                    if (snapshot.hasData) {
+                      final username = snapshot.data!;
+
+                      return Text(
+                        isSentMessage ? 'Sent to $username' : 'Received from $username',
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          decoration: isSentMessage
+                              ? TextDecoration.none
+                              : TextDecoration.none,
+                        ),
+                      );
+                    } else {
+                      return Text(
+                        isSentMessage ? '' : '',
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          decoration: isSentMessage
+                              ? TextDecoration.none
+                              : TextDecoration.none,
+                        ),
+                      );
+                    }
+                  },
                 ),
                 subtitle: Text(
                   messageContent,
@@ -255,63 +268,84 @@ class _MyHomePageState extends State<MyHomePage> {
                   scrollDirection: Axis.horizontal,
                   padding: const EdgeInsets.only(left: 10),
                   children: [
-                    Hero(
-                      tag: "btn7",
-                      child: TextButton(
-                        onPressed: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) {
-                                return MyHomePage();
-                              },
+                    Expanded(
+                      child: Container(
+                        padding: const EdgeInsets.only(
+                            bottom: 10), // Add padding at the bottom
+                        decoration: BoxDecoration(
+                          border: Border(
+                            bottom: BorderSide(
+                              color: Colors.white,
+                              width: 2.0,
                             ),
-                          );
-                        },
-                        child: Text(
-                          "Chats".toUpperCase(),
-                          style: TextStyle(color: Colors.amber, fontSize: 20),
+                          ),
+                        ),
+                        child: Hero(
+                          tag: "btn7",
+                          child: TextButton(
+                            onPressed: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) {
+                                    return MyHomePage();
+                                  },
+                                ),
+                              );
+                            },
+                            child: Text(
+                              "Chats".toUpperCase(),
+                              style: TextStyle(
+                                color:
+                                    Colors.white, // Change text color to white
+                                fontSize: 20,
+                                decoration:
+                                    TextDecoration.none, // Remove underline
+                              ),
+                            ),
+                          ),
                         ),
                       ),
                     ),
                     const SizedBox(
                       width: 35,
                     ),
-                    /*Hero(
-            tag: "btn8",
-            child: TextButton(
-              onPressed: () {
-                 Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) {
-                    return HomePage();
-                  },
-                ),
-              );
-              },
-              child: Text(
-                "Scheduler".toUpperCase(),
-                style: TextStyle(color: Colors.amber, fontSize: 20),
-              ),
-            ),
-          ),*/
-                    Hero(
-                      tag: "btn9",
-                      child: TextButton(
-                        onPressed: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) {
-                                return SchedulePage();
-                              },
+                    Expanded(
+                      child: Container(
+                        padding: const EdgeInsets.only(
+                            bottom: 10), // Add padding at the bottom
+                        decoration: BoxDecoration(
+                          border: Border(
+                            bottom: BorderSide(
+                              color: Colors.transparent,
+                              width: 2.0,
                             ),
-                          );
-                        },
-                        child: Text(
-                          "Schedules".toUpperCase(),
-                          style: TextStyle(color: Colors.amber, fontSize: 20),
+                          ),
+                        ),
+                        child: Hero(
+                          tag: "btn9",
+                          child: TextButton(
+                            onPressed: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) {
+                                    return SchedulePage();
+                                  },
+                                ),
+                              );
+                            },
+                            child: Text(
+                              "Schedules".toUpperCase(),
+                              style: TextStyle(
+                                color:
+                                    Colors.white, // Change text color to white
+                                fontSize: 20,
+                                decoration:
+                                    TextDecoration.none, // Remove underline
+                              ),
+                            ),
+                          ),
                         ),
                       ),
                     ),
@@ -352,7 +386,7 @@ class _MyHomePageState extends State<MyHomePage> {
             size: 30,
           ),
           onPressed: () {
-             Navigator.push(
+            Navigator.push(
               context,
               MaterialPageRoute(
                 builder: (context) => UsersPage(),
@@ -487,20 +521,11 @@ class _MyHomePageState extends State<MyHomePage> {
                 Hero(
                   tag: "btn3",
                   child: TextButton.icon(
-                    icon: Icon(Icons.logout),
-                    onPressed: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) {
-                            return LoginScreen();
-                          },
-                        ),
-                      );
-                    },
+                    icon: Icon(Icons.exit_to_app),
+                    onPressed: () {},
                     label: Text(
                       "Logout".toUpperCase(),
-                      style: TextStyle(color: Colors.red, fontSize: 16),
+                      style: TextStyle(color: Colors.amberAccent, fontSize: 16),
                     ),
                   ),
                 ),
@@ -508,148 +533,6 @@ class _MyHomePageState extends State<MyHomePage> {
             ),
           ),
         ),
-      ),
-    );
-  }
-
-  Column buildConversationRow(
-      String name, String message, String filename, int msgCount) {
-    return Column(
-      children: [
-        Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Row(
-              children: [
-                UserAvatar(filename: filename),
-                const SizedBox(
-                  width: 15,
-                ),
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      name,
-                      style: const TextStyle(color: Colors.grey),
-                    ),
-                    const SizedBox(
-                      height: 5,
-                    ),
-                    Text(
-                      message,
-                      style: const TextStyle(color: Colors.black),
-                    ),
-                  ],
-                )
-              ],
-            ),
-            Padding(
-              padding: const EdgeInsets.only(right: 25, top: 5),
-              child: Column(
-                children: [
-                  const Text(
-                    '16:35',
-                    style: TextStyle(fontSize: 10),
-                  ),
-                  const SizedBox(
-                    height: 15,
-                  ),
-                  if (msgCount > 0)
-                    CircleAvatar(
-                      radius: 7,
-                      backgroundColor: Colors.green,
-                      child: Text(
-                        msgCount.toString(),
-                        style:
-                            const TextStyle(fontSize: 10, color: Colors.white),
-                      ),
-                    )
-                ],
-              ),
-            )
-          ],
-        ),
-        const Divider(
-          indent: 70,
-          height: 20,
-        )
-      ],
-    );
-  }
-
-  Padding buildContactAvatar(String name, String filename) {
-    return Padding(
-      padding: const EdgeInsets.only(right: 20.0),
-      child: Column(
-        children: [
-          UserAvatar(
-            filename: filename,
-          ),
-          const SizedBox(
-            height: 5,
-          ),
-          Text(
-            name,
-            style: const TextStyle(color: Colors.white, fontSize: 16),
-          )
-        ],
-      ),
-    );
-  }
-}
-
-class DrawerItem extends StatelessWidget {
-  final String title;
-  final IconData icon;
-  const DrawerItem({
-    super.key,
-    required this.title,
-    required this.icon,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return InkWell(
-      onTap: () {},
-      child: Padding(
-        padding: const EdgeInsets.only(bottom: 25),
-        child: Row(
-          children: [
-            Icon(
-              icon,
-              color: Colors.white,
-              size: 20,
-            ),
-            const SizedBox(
-              width: 40,
-            ),
-            Text(
-              title,
-              style: const TextStyle(color: Colors.white, fontSize: 16),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-class UserAvatar extends StatelessWidget {
-  final String filename;
-  const UserAvatar({
-    super.key,
-    required this.filename,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return CircleAvatar(
-      radius: 32,
-      backgroundColor: Colors.blueGrey,
-      child: CircleAvatar(
-        radius: 29,
-        backgroundImage: Image.asset('assets/images/$filename').image,
       ),
     );
   }

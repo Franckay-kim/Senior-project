@@ -20,6 +20,7 @@ class _ChatsPageState extends State<ChatsPage> {
   late SupabaseClient _supabaseClient;
   List<Map<String, dynamic>> _messages = [];
   TextEditingController _messageController = TextEditingController();
+  final senderId = supabase.auth.currentSession?.user.id;
 
   @override
   void initState() {
@@ -37,8 +38,6 @@ class _ChatsPageState extends State<ChatsPage> {
   }
 
   Future<void> fetchMessages() async {
-    final senderId = supabase.auth.currentSession?.user.id;
-
     final response1 = await _supabaseClient
         .from('messages')
         .select('sender_id, receiver_id, content, created_at')
@@ -52,7 +51,7 @@ class _ChatsPageState extends State<ChatsPage> {
         .select('sender_id, receiver_id, content, created_at')
         .filter('sender_id', 'eq', widget.recipientId)
         .filter('receiver_id', 'eq', senderId)
-        .order('created_at', ascending: true)
+        .order('created_at')
         .execute();
 
     if (response1.status == 200 && response2.status == 200) {
@@ -92,11 +91,8 @@ class _ChatsPageState extends State<ChatsPage> {
   }
 
   Future<void> sendMessage() async {
-    final messageContent = _messageController.text.trim();
-
+    final messageContent = _messageController.text;
     if (messageContent.isNotEmpty) {
-      final senderId = _supabaseClient.auth.currentUser?.id;
-
       if (senderId != null) {
         final response = await _supabaseClient.from('messages').insert({
           'sender_id': senderId,
@@ -145,26 +141,59 @@ class _ChatsPageState extends State<ChatsPage> {
                       final createdAt =
                           DateTime.parse(message['created_at'] as String);
                       final isSentMessage =
-                          senderId == _supabaseClient.auth.currentUser?.id;
+                          senderId == supabase.auth.currentSession?.user.id;
 
-                      return Container(
+                      return Align(
                         alignment: isSentMessage
                             ? Alignment.centerRight
                             : Alignment.centerLeft,
-                        child: ListTile(
-                          title: Text(
-                            isSentMessage ? 'You' : recipientName,
-                            style: TextStyle(
-                              fontWeight: FontWeight.bold,
-                            ),
+                        child: Container(
+                          padding: EdgeInsets.all(8),
+                          margin:
+                              EdgeInsets.symmetric(vertical: 4, horizontal: 8),
+                          decoration: BoxDecoration(
+                            color: isSentMessage
+                                ? Colors.grey[300]
+                                : Colors.green[300],
+                            borderRadius: BorderRadius.circular(8),
                           ),
-                          subtitle: Text(
-                            messageContent,
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                          ),
-                          trailing: Text(
-                            DateFormat('HH:mm').format(createdAt),
+                          constraints: BoxConstraints(
+                              maxWidth: 350,
+                              minWidth:
+                                  200), // Adjust the maximum width as desired
+                          child: Row(
+                            crossAxisAlignment: CrossAxisAlignment.end,
+                            children: [
+                              Text(
+                                DateFormat('HH:mm').format(createdAt),
+                                style: TextStyle(
+                                  fontSize: 12,
+                                  color: Colors.black.withOpacity(0.6),
+                                ),
+                              ),
+                              SizedBox(width: 8),
+                              Expanded(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      isSentMessage ? 'You': recipientName,
+                                      style: TextStyle(
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                    Text(
+                                      messageContent,
+                                      style: TextStyle(
+                                        color: Colors.black,
+                                      ),
+                                      maxLines: null,
+                                      overflow: TextOverflow.visible,
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ],
                           ),
                         ),
                       );

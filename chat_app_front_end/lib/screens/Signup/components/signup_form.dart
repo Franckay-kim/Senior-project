@@ -33,15 +33,25 @@ class _SignupScreenState extends State<SignUpForm> {
     try {
       await supabase.auth.signUp(
           email: email, password: password, data: {'username': username});
+      _showSuccessNotification(); // Show success notification
       Navigator.of(context)
-          .pushAndRemoveUntil(MyHomePage.route(), (route) => false);
+          .pushAndRemoveUntil(LoginScreen.route(), (route) => false);
     } on AuthException catch (error) {
-    //  print(error.message);
+      //  print(error.message);
       context.showErrorSnackBar(message: error.message);
     } catch (error) {
-     // print(unexpectedErrorMessage);
+      // print(unexpectedErrorMessage);
       context.showErrorSnackBar(message: unexpectedErrorMessage);
     }
+  }
+
+  void _showSuccessNotification() {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text('Signup successful!'), // Customize the message as needed
+        backgroundColor: Colors.green, // Customize the color as needed
+      ),
+    );
   }
 
   @override
@@ -65,7 +75,7 @@ class _SignupScreenState extends State<SignUpForm> {
             onSaved: (email) {},
             validator: (val) {
               if (val == null || val.isEmpty) {
-                return 'Required';
+                return 'Email Required';
               }
               return null;
             },

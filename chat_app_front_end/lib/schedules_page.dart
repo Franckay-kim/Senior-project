@@ -63,13 +63,15 @@ class _SchedulePageState extends State<SchedulePage> {
 
   Future<void> fetchMessages() async {
     print(loggedInUserId);
+
     final response = await supabaseClient
-        .from('schedules')
-        .select('id,sender_id,recipient_ids,scheduled_time,content, delivered,created_at')
+        .from(tableName)
+        .select(
+            'id, sender_id, recipient_ids, scheduled_time, content, delivered, created_at')
+        .or('sender_id.eq.$loggedInUserId, recipient_ids.cs.{{$loggedInUserId}}')
         .execute();
 
     if (response.status != 200) {
-      // Handle error
       throw Error();
     } else {
       setState(() {
@@ -80,17 +82,15 @@ class _SchedulePageState extends State<SchedulePage> {
     }
   }
 
-  Future<String> getSenderInitials(String senderId) async {
-    print(senderId);
-    // ignore: unnecessary_null_comparison
-    if (senderId == null) {
-      return 'N/A'; // Provide a fallback value when senderId is null
+  Future<String> getUsername(String userId) async {
+    if (userId == null) {
+      return 'N/A'; // Provide a fallback value when userId is null
     }
 
     final response = await supabaseClient
         .from('profiles')
         .select('username')
-        .eq('id', loggedInUserId)
+        .eq('id', userId)
         .execute();
 
     if (response.status != 200) {
@@ -98,17 +98,19 @@ class _SchedulePageState extends State<SchedulePage> {
       throw Error();
     } else {
       final username = response.data?[0]['username'] as String? ?? 'Unknown';
-      print(username);
-      if (username.isNotEmpty) {
-        final initials = username.trim().split(' ').map((e) => e[0]).join('');
-        return initials.toUpperCase();
-      } else {
-        return 'N/A'; // Fallback value for initials when username is null or empty
-      }
+      return username;
     }
   }
 
   Widget _buildMessageList() {
+    if (messages.isEmpty) {
+      return Center(
+        child: Text(
+          'No messages yet. Click on the button at the bottom left to start scheduling!',
+          style: TextStyle(fontSize: 18),
+        ),
+      );
+    }
     return ListView.builder(
       padding: const EdgeInsets.only(left: 25),
       itemCount: messages.length,
@@ -122,25 +124,28 @@ class _SchedulePageState extends State<SchedulePage> {
         final isDelivered = createdAt.isBefore(DateTime.now());
 
         return GestureDetector(
-          onTap: () {
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (context) {
-                  return SendMessagePage(senderId: loggedInUserId);
-                },
-              ),
-            );
-          },
+          // onTap: () {
+          //   Navigator.push(
+          //     context,
+          //     MaterialPageRoute(
+          //       builder: (context) {
+          //         return SendMessagePage(senderId: loggedInUserId);
+          //       },
+          //     ),
+          //   );
+          // },
           child: Column(
             children: [
               ListTile(
                 leading: FutureBuilder<String>(
-                  future: getSenderInitials(senderId),
+                  future: getUsername(senderId),
                   builder: (context, snapshot) {
                     if (snapshot.hasData) {
+                      print(message['recipient_ids']);
+                      final username =
+                          snapshot.data?[0].toUpperCase() ?? 'Unknown';
                       return CircleAvatar(
-                        child: Text(snapshot.data ?? ''),
+                        child: Text(username),
                       );
                     } else if (snapshot.hasError) {
                       return Icon(Icons.error);
@@ -149,11 +154,33 @@ class _SchedulePageState extends State<SchedulePage> {
                     }
                   },
                 ),
-                title: Text(
-                  isSentMessage ? 'Sent to ' : 'Received from',
-                  style: TextStyle(
-                    fontWeight: FontWeight.bold,
-                  ),
+                title: FutureBuilder<String>(
+                  future: getUsername(senderId),
+                  builder: (context, snapshot) {
+                    if (snapshot.hasData) {
+                      final username = snapshot.data!;
+
+                      return Text(
+                        isSentMessage ? 'Sent to $username' : 'Received from $username',
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          decoration: isSentMessage
+                              ? TextDecoration.none
+                              : TextDecoration.none,
+                        ),
+                      );
+                    } else {
+                      return Text(
+                        isSentMessage ? '' : '',
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          decoration: isSentMessage
+                              ? TextDecoration.none
+                              : TextDecoration.none,
+                        ),
+                      );
+                    }
+                  },
                 ),
                 subtitle: Text(
                   messageContent,
@@ -212,63 +239,84 @@ class _SchedulePageState extends State<SchedulePage> {
                   scrollDirection: Axis.horizontal,
                   padding: const EdgeInsets.only(left: 10),
                   children: [
-                    Hero(
-                      tag: "btn7",
-                      child: TextButton(
-                        onPressed: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) {
-                                return MyHomePage();
-                              },
+                    Expanded(
+                      child: Container(
+                        padding: const EdgeInsets.only(
+                            bottom: 10), // Add padding at the bottom
+                        decoration: BoxDecoration(
+                          border: Border(
+                            bottom: BorderSide(
+                              color: Colors.transparent,
+                              width: 2.0,
                             ),
-                          );
-                        },
-                        child: Text(
-                          "Chats".toUpperCase(),
-                          style: TextStyle(color: Colors.amber, fontSize: 20),
+                          ),
+                        ),
+                        child: Hero(
+                          tag: "btn9",
+                          child: TextButton(
+                            onPressed: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) {
+                                    return MyHomePage();
+                                  },
+                                ),
+                              );
+                            },
+                            child: Text(
+                              "Chats".toUpperCase(),
+                              style: TextStyle(
+                                color:
+                                    Colors.white, // Change text color to white
+                                fontSize: 20,
+                                decoration:
+                                    TextDecoration.none, // Remove underline
+                              ),
+                            ),
+                          ),
                         ),
                       ),
                     ),
                     const SizedBox(
                       width: 35,
                     ),
-                    /*Hero(
-            tag: "btn8",
-            child: TextButton(
-              onPressed: () {
-                 Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) {
-                    return HomePage();
-                  },
-                ),
-              );
-              },
-              child: Text(
-                "Scheduler".toUpperCase(),
-                style: TextStyle(color: Colors.amber, fontSize: 20),
-              ),
-            ),
-          ),*/
-                    Hero(
-                      tag: "btn9",
-                      child: TextButton(
-                        onPressed: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) {
-                                return SchedulePage();
-                              },
+                    Expanded(
+                      child: Container(
+                        padding: const EdgeInsets.only(
+                            bottom: 10), // Add padding at the bottom
+                        decoration: BoxDecoration(
+                          border: Border(
+                            bottom: BorderSide(
+                              color: Colors.white,
+                              width: 2.0,
                             ),
-                          );
-                        },
-                        child: Text(
-                          "Schedules".toUpperCase(),
-                          style: TextStyle(color: Colors.amber, fontSize: 20),
+                          ),
+                        ),
+                        child: Hero(
+                          tag: "btn7",
+                          child: TextButton(
+                            onPressed: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) {
+                                    return SchedulePage();
+                                  },
+                                ),
+                              );
+                            },
+                            child: Text(
+                              "Schedules".toUpperCase(),
+                              style: TextStyle(
+                                color:
+                                    Colors.white, // Change text color to white
+                                fontSize: 20,
+                                decoration:
+                                    TextDecoration.none, // Remove underline
+                              ),
+                            ),
+                          ),
                         ),
                       ),
                     ),
