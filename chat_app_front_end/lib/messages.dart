@@ -116,11 +116,31 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   Widget _buildMessageList() {
+    final lastMessages = <String, Map<String, dynamic>>{};
+
+    for (final message in messages) {
+      final senderId = message['sender_id'] as String;
+      final receiverId = message['receiver_id'] as String;
+      final isSentMessage = senderId == loggedInUserId;
+      final otherUserId = isSentMessage ? receiverId : senderId;
+
+      final existingMessage = lastMessages[otherUserId];
+      if (existingMessage == null ||
+          DateTime.parse(message['created_at'] as String).isAfter(
+              DateTime.parse(existingMessage['created_at'] as String))) {
+        lastMessages[otherUserId] = message;
+      }
+    }
+
+    final sortedMessages = lastMessages.values.toList()
+      ..sort((a, b) => DateTime.parse(b['created_at'] as String)
+          .compareTo(DateTime.parse(a['created_at'] as String)));
+
     return ListView.builder(
       padding: const EdgeInsets.only(left: 25),
-      itemCount: messages.length,
+      itemCount: sortedMessages.length,
       itemBuilder: (context, index) {
-        final message = messages[index];
+        final message = sortedMessages[index];
         final senderId = message['sender_id'] as String;
         final receiverId = message['receiver_id'] as String;
         final messageContent = message['content'] as String;
@@ -130,7 +150,6 @@ class _MyHomePageState extends State<MyHomePage> {
 
         return GestureDetector(
           onTap: () {
-            // Navigate to a new screen when an item is
             final String recipientId = (receiverId == loggedInUserId)
                 ? message['sender_id'] as String
                 : message['receiver_id'] as String;

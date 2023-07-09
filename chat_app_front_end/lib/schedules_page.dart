@@ -48,7 +48,7 @@ class _SchedulePageState extends State<SchedulePage> {
   final supabaseUrl = 'https://lvpjqqiicmztxjpdbgdz.supabase.co';
   final supabaseKey =
       'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imx2cGpxcWlpY216dHhqcGRiZ2R6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE2ODg2MDA2NzEsImV4cCI6MjAwNDE3NjY3MX0.cF8vWd-cgMED4DM6WK19r69VM_uXrrMXb7guyDxJq7U';
-  final tableName = 'messages';
+  final tableName = 'schedules';
   final loggedInUserId = supabase.auth.currentSession?.user.id ?? '';
 
   late SupabaseClient supabaseClient;
@@ -62,9 +62,10 @@ class _SchedulePageState extends State<SchedulePage> {
   }
 
   Future<void> fetchMessages() async {
+    print(loggedInUserId);
     final response = await supabaseClient
         .from('schedules')
-        .select('scheduled_time, delivered')
+        .select('id,sender_id,recipient_ids,scheduled_time,content, delivered,created_at')
         .execute();
 
     if (response.status != 200) {
@@ -80,7 +81,7 @@ class _SchedulePageState extends State<SchedulePage> {
   }
 
   Future<String> getSenderInitials(String senderId) async {
-    print(loggedInUserId);
+    print(senderId);
     // ignore: unnecessary_null_comparison
     if (senderId == null) {
       return 'N/A'; // Provide a fallback value when senderId is null
@@ -89,7 +90,7 @@ class _SchedulePageState extends State<SchedulePage> {
     final response = await supabaseClient
         .from('profiles')
         .select('username')
-        .eq('id', senderId)
+        .eq('id', loggedInUserId)
         .execute();
 
     if (response.status != 200) {
@@ -114,11 +115,9 @@ class _SchedulePageState extends State<SchedulePage> {
       itemBuilder: (context, index) {
         final message = messages[index];
         final senderId = message['sender_id'] as String;
-        final receiverId = message['receiver_id'] as String;
         final messageContent = message['content'] as String;
         final createdAt = DateTime.parse(message['created_at'] as String);
         final isSentMessage = senderId == loggedInUserId;
-        final otherUserId = isSentMessage ? receiverId : senderId;
 
         final isDelivered = createdAt.isBefore(DateTime.now());
 
@@ -137,7 +136,7 @@ class _SchedulePageState extends State<SchedulePage> {
             children: [
               ListTile(
                 leading: FutureBuilder<String>(
-                  future: getSenderInitials(otherUserId),
+                  future: getSenderInitials(senderId),
                   builder: (context, snapshot) {
                     if (snapshot.hasData) {
                       return CircleAvatar(
