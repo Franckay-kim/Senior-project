@@ -2,6 +2,7 @@
 
 import 'package:MeChat/constants.dart';
 import 'package:MeChat/screens/Login/login_screen.dart';
+import 'package:MeChat/users_page.dart';
 import 'package:flutter/material.dart';
 import 'package:supabase/supabase.dart';
 import 'package:intl/intl.dart';
@@ -51,6 +52,7 @@ class _MyHomePageState extends State<MyHomePage> {
 
   late SupabaseClient supabaseClient;
   List<Map<String, dynamic>> messages = [];
+  bool hasMessages = false;
 
   @override
   void initState() {
@@ -83,6 +85,7 @@ class _MyHomePageState extends State<MyHomePage> {
         final recipientId = latestMessage?['receiver_id'] as String;
         messages[0]['recipient_id'] = recipientId;
         print(recipientId);
+        hasMessages = messages.isNotEmpty;
       });
     }
   }
@@ -116,6 +119,14 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   Widget _buildMessageList() {
+     if (messages.isEmpty) {
+      return Center(
+        child: Text(
+          'No messages yet. Click on the button at the bottom left to start chatting!',
+          style: TextStyle(fontSize: 18),
+        ),
+      );
+    }
     final lastMessages = <String, Map<String, dynamic>>{};
 
     for (final message in messages) {
@@ -340,7 +351,14 @@ class _MyHomePageState extends State<MyHomePage> {
             Icons.edit_outlined,
             size: 30,
           ),
-          onPressed: () {},
+          onPressed: () {
+             Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => UsersPage(),
+              ),
+            );
+          },
         ),
       ),
       drawer: Drawer(

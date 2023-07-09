@@ -26,7 +26,7 @@ class _ChatsPageState extends State<ChatsPage> {
     super.initState();
     _supabaseClient = SupabaseClient(
       'https://lvpjqqiicmztxjpdbgdz.supabase.co',
-      'YOUR_SUPABASE_API_KEY',
+      'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imx2cGpxcWlpY216dHhqcGRiZ2R6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE2ODg2MDA2NzEsImV4cCI6MjAwNDE3NjY3MX0.cF8vWd-cgMED4DM6WK19r69VM_uXrrMXb7guyDxJq7U',
     );
   }
 
