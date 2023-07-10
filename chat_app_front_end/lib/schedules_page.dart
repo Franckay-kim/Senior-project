@@ -161,7 +161,7 @@ class _SchedulePageState extends State<SchedulePage> {
                       final username = snapshot.data!;
 
                       return Text(
-                        isSentMessage ? 'Sent to $username' : 'Received from $username',
+                        isSentMessage ? 'Sent ' : 'Received from $username',
                         style: TextStyle(
                           fontWeight: FontWeight.bold,
                           decoration: isSentMessage

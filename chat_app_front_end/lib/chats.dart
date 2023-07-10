@@ -153,8 +153,8 @@ class _ChatsPageState extends State<ChatsPage> {
                               EdgeInsets.symmetric(vertical: 4, horizontal: 8),
                           decoration: BoxDecoration(
                             color: isSentMessage
-                                ? Colors.grey[300]
-                                : Colors.green[300],
+                                ? Colors.green[300]
+                                : Colors.grey[300],
                             borderRadius: BorderRadius.circular(8),
                           ),
                           constraints: BoxConstraints(
@@ -177,7 +177,7 @@ class _ChatsPageState extends State<ChatsPage> {
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
                                     Text(
-                                      isSentMessage ? 'You': recipientName,
+                                      isSentMessage ?  'You': recipientName,
                                       style: TextStyle(
                                         fontWeight: FontWeight.bold,
                                       ),
