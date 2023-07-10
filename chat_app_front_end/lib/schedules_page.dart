@@ -62,7 +62,6 @@ class _SchedulePageState extends State<SchedulePage> {
   }
 
   Future<void> fetchMessages() async {
-    print(loggedInUserId);
 
     final response = await supabaseClient
         .from(tableName)
@@ -75,13 +74,16 @@ class _SchedulePageState extends State<SchedulePage> {
       throw Error();
     } else {
       setState(() {
-        // Filter messages based on scheduled_time before updating the state
+        // Filter messages based on scheduled_time and sender_id before updating the state
         final now = DateTime.now();
         messages = (response.data as List<dynamic>)
             .cast<Map<String, dynamic>>()
             .where((message) {
-          final scheduledTime = DateTime.parse(message['scheduled_time']);
-          return scheduledTime.isBefore(now);
+          final scheduledTime =
+              DateTime.parse(message['scheduled_time']).add(Duration(hours: 3));
+
+          final senderId = message['sender_id'];
+          return scheduledTime.isBefore(now) || senderId == loggedInUserId;
         }).toList();
       });
     }
@@ -126,8 +128,6 @@ class _SchedulePageState extends State<SchedulePage> {
         final createdAt = DateTime.parse(message['created_at'] as String);
         final isSentMessage = senderId == loggedInUserId;
 
-        final isDelivered = createdAt.isBefore(DateTime.now());
-
         return GestureDetector(
           // onTap: () {
           //   Navigator.push(
@@ -146,7 +146,6 @@ class _SchedulePageState extends State<SchedulePage> {
                   future: getUsername(senderId),
                   builder: (context, snapshot) {
                     if (snapshot.hasData) {
-                      print(message['recipient_ids']);
                       final username =
                           snapshot.data?[0].toUpperCase() ?? 'Unknown';
                       return CircleAvatar(

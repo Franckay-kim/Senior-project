@@ -1,3 +1,5 @@
+import 'dart:js_interop';
+
 import 'package:MeChat/constants.dart';
 import 'package:MeChat/screens/Login/login_screen.dart';
 import 'package:MeChat/users_page.dart';
@@ -80,31 +82,37 @@ class _MyHomePageState extends State<MyHomePage> {
             .toList();
 
         final latestMessage = messages.isNotEmpty ? messages[0] : null;
-        final recipientId = latestMessage?['receiver_id'] as String;
-        messages[0]['recipient_id'] = recipientId;
-        print(recipientId);
+        final recipientId = latestMessage?['receiver_id'] as String?;
+        if (messages.isNotEmpty) {
+          messages[0]['recipient_id'] = recipientId ?? '';
+        }
         hasMessages = messages.isNotEmpty;
       });
     }
   }
 
-  Future<String> getUsername(String userId) async {
+  Future<String> getUsername(String? userId) async {
     if (userId == null) {
       return 'N/A'; // Provide a fallback value when userId is null
-    }
-
-    final response = await supabaseClient
-        .from('profiles')
-        .select('username')
-        .eq('id', userId)
-        .execute();
-
-    if (response.status != 200) {
-      // Handle error
-      throw Error();
     } else {
-      final username = response.data?[0]['username'] as String? ?? 'Unknown';
-      return username;
+      final response = await supabaseClient
+          .from('profiles')
+          .select('username')
+          .eq('id', userId)
+          .execute();
+
+      if (response.status != 200) {
+        // Handle error
+        throw Error();
+      } else {
+        final data = response.data as List<dynamic>?;
+        if (data != null && data.isNotEmpty) {
+          final username = data[0]['username'] as String? ?? 'Unknown';
+          return username;
+        } else {
+          return 'Unknown'; // Fallback value when response data is null or empty
+        }
+      }
     }
   }
 
@@ -170,9 +178,9 @@ class _MyHomePageState extends State<MyHomePage> {
                   future: getUsername(otherUserId),
                   builder: (context, snapshot) {
                     if (snapshot.hasData) {
-                      final username = snapshot.data?[0].toUpperCase() ?? 'Unknown';
+                      final username = snapshot.data;
                       return CircleAvatar(
-                        child: Text(username),
+                        child: Text(username!),
                       );
                     } else if (snapshot.hasError) {
                       return Icon(Icons.error);
@@ -188,7 +196,9 @@ class _MyHomePageState extends State<MyHomePage> {
                       final username = snapshot.data!;
 
                       return Text(
-                        isSentMessage ? 'Sent to $username' : 'Received from $username',
+                        isSentMessage
+                            ? 'Sent to $username'
+                            : 'Received from $username',
                         style: TextStyle(
                           fontWeight: FontWeight.bold,
                           decoration: isSentMessage
