@@ -83,56 +83,56 @@ class _SignupScreenState extends State<SignUpForm> {
               hintText: "Your email",
               prefixIcon: Padding(
                 padding: EdgeInsets.all(defaultPadding),
-                child: Icon(Icons.person),
-              ),
-            ),
-          ),
-          TextFormField(
-            keyboardType: TextInputType.emailAddress,
-            textInputAction: TextInputAction.next,
-            cursorColor: kPrimaryColor,
-            controller: _usernameController,
-            onSaved: (username) {},
-            validator: (val) {
-              if (val == null || val.isEmpty) {
-                return 'Required';
-              }
-              final isValid = RegExp(r'^[A-Za-z0-9_]{3,24}$').hasMatch(val);
-              if (!isValid) {
-                return '3-24 long with alphanumeric or underscore';
-              }
-              return null;
-            },
-            decoration: InputDecoration(
-              hintText: "Your name",
-              prefixIcon: Padding(
-                padding: EdgeInsets.all(defaultPadding),
-                child: Icon(Icons.person),
+                child: Icon(Icons.email),
               ),
             ),
           ),
           Padding(
             padding: EdgeInsets.symmetric(vertical: defaultPadding),
             child: TextFormField(
-              textInputAction: TextInputAction.done,
-              obscureText: true,
-              controller: _passwordController,
+              keyboardType: TextInputType.emailAddress,
+              textInputAction: TextInputAction.next,
               cursorColor: kPrimaryColor,
+              controller: _usernameController,
+              onSaved: (username) {},
               validator: (val) {
                 if (val == null || val.isEmpty) {
                   return 'Required';
                 }
-                if (val.length < 6) {
-                  return '6 characters minimum';
+                final isValid = RegExp(r'^[A-Za-z0-9_]{3,24}$').hasMatch(val);
+                if (!isValid) {
+                  return '3-24 long with alphanumeric or underscore';
                 }
                 return null;
               },
               decoration: InputDecoration(
-                hintText: "Your password",
+                hintText: "Your name",
                 prefixIcon: Padding(
                   padding: EdgeInsets.all(defaultPadding),
-                  child: Icon(Icons.lock),
+                  child: Icon(Icons.person),
                 ),
+              ),
+            ),
+          ),
+          TextFormField(
+            textInputAction: TextInputAction.done,
+            obscureText: true,
+            controller: _passwordController,
+            cursorColor: kPrimaryColor,
+            validator: (val) {
+              if (val == null || val.isEmpty) {
+                return 'Required';
+              }
+              if (val.length < 6) {
+                return '6 characters minimum';
+              }
+              return null;
+            },
+            decoration: InputDecoration(
+              hintText: "Your password",
+              prefixIcon: Padding(
+                padding: EdgeInsets.all(defaultPadding),
+                child: Icon(Icons.password),
               ),
             ),
           ),
@@ -159,7 +159,7 @@ class _SignupScreenState extends State<SignUpForm> {
                 hintText: "Confirm password",
                 prefixIcon: Padding(
                   padding: EdgeInsets.all(defaultPadding),
-                  child: Icon(Icons.lock),
+                  child: Icon(Icons.password),
                 ),
               ),
             ),

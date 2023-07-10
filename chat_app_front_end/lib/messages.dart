@@ -1,4 +1,3 @@
-import 'dart:js_interop';
 
 import 'package:MeChat/constants.dart';
 import 'package:MeChat/screens/Login/login_screen.dart';
