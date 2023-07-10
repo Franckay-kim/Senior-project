@@ -75,9 +75,14 @@ class _SchedulePageState extends State<SchedulePage> {
       throw Error();
     } else {
       setState(() {
+        // Filter messages based on scheduled_time before updating the state
+        final now = DateTime.now();
         messages = (response.data as List<dynamic>)
             .cast<Map<String, dynamic>>()
-            .toList();
+            .where((message) {
+          final scheduledTime = DateTime.parse(message['scheduled_time']);
+          return scheduledTime.isBefore(now);
+        }).toList();
       });
     }
   }
@@ -187,7 +192,7 @@ class _SchedulePageState extends State<SchedulePage> {
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                 ),
-                trailing: isDelivered ? Text('Delivered') : null,
+                trailing: isSentMessage ? Text('Delivered') : null,
               ),
               const Divider(
                 indent: 70,
