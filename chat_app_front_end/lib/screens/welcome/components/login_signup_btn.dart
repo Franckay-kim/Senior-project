@@ -1,3 +1,4 @@
+import 'package:MeChat/screens/Login/login_screen_admin.dart';
 import 'package:flutter/material.dart';
 
 import '../../../constants.dart';
@@ -27,7 +28,7 @@ class LoginAndSignupBtn extends StatelessWidget {
               );
             },
             child: Text(
-              "Login".toUpperCase(),
+              "Login as a User".toUpperCase(),
             ),
           ),
         ),
@@ -38,7 +39,7 @@ class LoginAndSignupBtn extends StatelessWidget {
               context,
               MaterialPageRoute(
                 builder: (context) {
-                  return SignUpScreen();
+                  return AdminLoginScreen();
                 },
               ),
             );
@@ -46,7 +47,7 @@ class LoginAndSignupBtn extends StatelessWidget {
           style: ElevatedButton.styleFrom(
               backgroundColor: kPrimaryLightColor, elevation: 0),
           child: Text(
-            "Sign Up".toUpperCase(),
+            "Login as Admin".toUpperCase(),
             style: TextStyle(color: Colors.black),
           ),
         ),

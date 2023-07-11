@@ -2,7 +2,8 @@
 
 import 'dart:convert';
 
-import 'package:MeChat/screens/Login/login_screen_admin.dart';
+import 'package:MeChat/admin_page.dart';
+import 'package:MeChat/screens/Login/login_screen.dart';
 import 'package:MeChat/screens/welcome/welcome_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
@@ -13,14 +14,15 @@ import '../../../messages.dart';
 import '../../../services/message_service.dart';
 import '../../Signup/signup_screen.dart';
 
-class LoginForm extends StatefulWidget {
+class AdminLoginForm extends StatefulWidget {
   @override
-  _LoginScreenState createState() => _LoginScreenState();
+  _AdminLoginScreenState createState() => _AdminLoginScreenState();
 }
 
-class _LoginScreenState extends State<LoginForm> {
+class _AdminLoginScreenState extends State<AdminLoginForm> {
   bool _isLoading = false;
-  TextEditingController _emailController = TextEditingController();
+  TextEditingController _emailController =
+      TextEditingController(text: 'admin@gmail.com');
   TextEditingController _passwordController = TextEditingController();
 
   String errorMessage = '';
@@ -37,7 +39,7 @@ class _LoginScreenState extends State<LoginForm> {
       _showSuccessNotification(); // Show success notification
 
       Navigator.of(context)
-          .pushAndRemoveUntil(MyHomePage.route(), (route) => false);
+          .pushAndRemoveUntil(AdminPage.route(), (route) => false);
     } on AuthException catch (error) {
       context.showErrorSnackBar(message: error.message);
     } catch (_) {
@@ -84,6 +86,7 @@ class _LoginScreenState extends State<LoginForm> {
             cursorColor: kPrimaryColor,
             onSaved: (email) {},
             controller: _emailController,
+            enabled: false, // Make the field non-editable
             decoration: InputDecoration(
               hintText: "Your email",
               prefixIcon: Padding(
@@ -118,12 +121,13 @@ class _LoginScreenState extends State<LoginForm> {
           ),
           const SizedBox(height: defaultPadding),
           AlreadyHaveAnAccountCheck(
+            login: false,
             press: () {
               Navigator.push(
                 context,
                 MaterialPageRoute(
                   builder: (context) {
-                    return AdminLoginScreen();
+                    return LoginScreen();
                   },
                 ),
               );

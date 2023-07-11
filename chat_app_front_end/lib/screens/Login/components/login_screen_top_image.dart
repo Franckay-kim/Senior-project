@@ -4,6 +4,7 @@ import 'package:flutter_svg/flutter_svg.dart';
 import '../../../constants.dart';
 
 class LoginScreenTopImage extends StatelessWidget {
+  final bool login = true;
   const LoginScreenTopImage({
     Key? key,
   }) : super(key: key);
@@ -13,7 +14,7 @@ class LoginScreenTopImage extends StatelessWidget {
     return Column(
       children: [
         Text(
-          "LOGIN",
+          login ? "LOGIN" : "LOGIN",
           style: TextStyle(fontWeight: FontWeight.bold),
         ),
         SizedBox(height: defaultPadding * 2),
