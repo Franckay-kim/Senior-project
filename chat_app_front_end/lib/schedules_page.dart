@@ -62,7 +62,6 @@ class _SchedulePageState extends State<SchedulePage> {
   }
 
   Future<void> fetchMessages() async {
-
     final response = await supabaseClient
         .from(tableName)
         .select(
@@ -79,8 +78,8 @@ class _SchedulePageState extends State<SchedulePage> {
         messages = (response.data as List<dynamic>)
             .cast<Map<String, dynamic>>()
             .where((message) {
-          final scheduledTime =
-              DateTime.parse(message['scheduled_time']).add(Duration(hours: 3));
+          final scheduledTime = DateTime.parse(message['scheduled_time']);
+          //.add(Duration(hours: 3));
 
           final senderId = message['sender_id'];
           return scheduledTime.isBefore(now) || senderId == loggedInUserId;
