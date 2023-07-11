@@ -177,9 +177,10 @@ class _MyHomePageState extends State<MyHomePage> {
                   future: getUsername(otherUserId),
                   builder: (context, snapshot) {
                     if (snapshot.hasData) {
-                      final username = snapshot.data;
+                      final username =
+                          snapshot.data?[0].toUpperCase() ?? 'Unknown';
                       return CircleAvatar(
-                        child: Text(username!),
+                        child: Text(username),
                       );
                     } else if (snapshot.hasError) {
                       return Icon(Icons.error);
