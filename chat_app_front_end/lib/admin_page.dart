@@ -256,7 +256,7 @@ class _AdminPageState extends State<AdminPage> {
             ListTile(
               title: const Text('Logout'),
               onTap: () {
-                 Navigator.push(
+                Navigator.push(
                   context,
                   MaterialPageRoute(
                     builder: (context) {
@@ -415,9 +415,7 @@ class _UserManagementPageState extends State<UserManagementPage> {
                 IconButton(
                   icon: const Icon(Icons.delete),
                   color: Colors.red,
-                  onPressed: () {
-                    // Implement delete user functionality
-                  },
+                  onPressed: () => deleteUser(profile.id),
                 ),
               ],
             ),
@@ -430,7 +428,52 @@ class _UserManagementPageState extends State<UserManagementPage> {
       ),
     );
   }
+
+  Future<void> deleteUser(String userId) async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Confirm Deletion'),
+        content: const Text('Are you sure you want to delete this user?'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: const Text('Cancel'),
+          ),
+          ElevatedButton(
+            onPressed: () => Navigator.pop(context, true),
+            child: const Text('Delete'),
+          ),
+        ],
+      ),
+    );
+
+    if (confirmed == true) {
+      try {
+        final response =
+            await supabase.from('profiles').delete().eq('id', userId).execute();
+
+        if (response.status != 200) {
+          throw Error();
+        }
+
+        setState(() {
+          profiles.removeWhere((profile) => profile.id == userId);
+        });
+
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('User deleted successfully.'),
+            backgroundColor: Colors.green,
+          ),
+        );
+      } catch (error) {
+        print('Error deleting user: $error');
+      }
+    }
+  }
 }
+
 class UserFormPage extends StatefulWidget {
   final Profile profile;
 
@@ -642,21 +685,20 @@ class _UserFormPageState extends State<UserFormPage> {
                   },
                 ),
               ),
-            
-                Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 8.0),
-                  child: TextFormField(
-                    controller: _passwordController,
-                    obscureText: true,
-                    decoration: InputDecoration(labelText: 'Password'),
-                    validator: (value) {
-                      if (value == null || value.isEmpty) {
-                        return 'Please enter a password.';
-                      }
-                      return null;
-                    },
-                  ),
+              Padding(
+                padding: const EdgeInsets.symmetric(vertical: 8.0),
+                child: TextFormField(
+                  controller: _passwordController,
+                  obscureText: true,
+                  decoration: InputDecoration(labelText: 'Password'),
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return 'Please enter a password.';
+                    }
+                    return null;
+                  },
                 ),
+              ),
               Padding(
                 padding: const EdgeInsets.symmetric(vertical: 8.0),
                 child: TextFormField(
