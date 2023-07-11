@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 import 'constants.dart';
+import 'screens/Login/login_screen.dart';
 
 void main() {
   runApp(const MyApp());
@@ -255,7 +256,14 @@ class _AdminPageState extends State<AdminPage> {
             ListTile(
               title: const Text('Logout'),
               onTap: () {
-                // Implement logout functionality
+                 Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) {
+                      return LoginScreen();
+                    },
+                  ),
+                );
               },
             ),
           ],
@@ -423,11 +431,10 @@ class _UserManagementPageState extends State<UserManagementPage> {
     );
   }
 }
-
 class UserFormPage extends StatefulWidget {
-  final Profile? profile;
+  final Profile profile;
 
-  UserFormPage({this.profile});
+  UserFormPage({required this.profile});
 
   @override
   _UserFormPageState createState() => _UserFormPageState();
@@ -438,14 +445,13 @@ class _UserFormPageState extends State<UserFormPage> {
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
   final _usernameController = TextEditingController();
+  final _confirmPasswordController = TextEditingController();
 
   @override
   void initState() {
     super.initState();
-    if (widget.profile != null) {
-      _emailController.text = widget.profile!.email;
-      _usernameController.text = widget.profile!.username;
-    }
+    _emailController.text = widget.profile.email;
+    _usernameController.text = widget.profile.username;
   }
 
   @override
@@ -454,6 +460,83 @@ class _UserFormPageState extends State<UserFormPage> {
     _passwordController.dispose();
     _usernameController.dispose();
     super.dispose();
+  }
+
+  Future<void> _retrieveUser() async {
+    try {
+      final User? user = supabase.auth.currentUser;
+      if (user != null) {
+        final response = await supabase
+            .from('profiles')
+            .select()
+            .eq('id', user.id)
+            .limit(1)
+            .execute();
+        final List<dynamic> data = response.data as List<dynamic>;
+        if (data.isNotEmpty) {
+          final profileData = data.first;
+          final email = profileData['email'] as String;
+          final username = profileData['username'] as String;
+          setState(() {
+            _emailController.text = email;
+            _usernameController.text = username;
+          });
+        }
+      }
+    } catch (error) {
+      print('Error retrieving user: $error');
+      // Handle the error, show an error message, or perform other actions as needed
+    }
+  }
+
+  Future<void> _addUser(String username, String password) async {
+    try {
+      final response = await supabase.from('profiles').insert([
+        {'username': username, 'password': password}
+      ]).execute();
+
+      if (response.status != 201) {
+        throw Error();
+      }
+    } catch (error) {
+      print('Error adding user: $error');
+      // Handle the error, show an error message, or perform other actions as needed
+    }
+  }
+
+  Future<void> _updateUser(String username) async {
+    try {
+      final User? user = supabase.auth.currentUser;
+      if (user != null) {
+        await supabase
+            .from('profiles')
+            .update({'username': username})
+            .eq('id', user.id)
+            .execute();
+      }
+    } catch (error) {
+      print('Error updating user: $error');
+      // Handle the error, show an error message, or perform other actions as needed
+    }
+  }
+
+  Future<void> _signUp(String email, String password, String username) async {
+    try {
+      final AuthResponse res = await supabase.auth.signUp(
+        email: email,
+        password: password,
+        data: {'username': username},
+      );
+      final Session? session = res.session;
+      final User? user = res.user;
+      // Perform additional actions or show success message if needed
+    } on AuthException catch (error) {
+      print('AuthException while signing up: $error');
+      // Handle the specific auth exception, show an error message, or perform other actions as needed
+    } catch (error) {
+      print('Error signing up: $error');
+      // Handle the error, show an error message, or perform other actions as needed
+    }
   }
 
   void saveUser() async {
@@ -465,41 +548,54 @@ class _UserFormPageState extends State<UserFormPage> {
     final email = _emailController.text;
     final username = _usernameController.text;
     final password = _passwordController.text;
+    final confirmPassword = _confirmPasswordController.text;
 
-    try {
-      if (widget.profile != null) {
-        // Update existing user in 'profiles' table
-        await supabase
-            .from('profiles')
-            .update({'username': username})
-            .eq('email', email)
-            .execute();
-      } else {
-        // Insert new user into 'profiles' table
-        await supabase.from('profiles').insert([
-          {'email': email, 'username': username}
-        ]).execute();
-
-        // Create user in authentication system
-        await supabase.auth.signUp(
-          email: email,
-          password: password,
-          data: {'username': username},
-        );
-      }
-
-      // Show success message
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(widget.profile != null
-              ? 'User updated successfully.'
-              : 'User added successfully.'),
-          backgroundColor: Colors.green,
+    if (password != confirmPassword) {
+      showDialog(
+        context: context,
+        builder: (context) => AlertDialog(
+          title: Text('Password Mismatch'),
+          content: Text('The password and confirmation do not match.'),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.pop(context);
+              },
+              child: Text('OK'),
+            ),
+          ],
         ),
       );
+      return;
+    }
 
-      // Navigate back to user management page
-      Navigator.pop(context);
+    try {
+      if (widget.profile.id.isNotEmpty) {
+        // Update existing user in 'profiles' table
+        await _updateUser(username);
+      } else {
+        // Insert new user into 'profiles' table
+        await _addUser(username, password);
+      }
+
+      if (email.isNotEmpty) {
+        // Update user email if provided
+        await _updateUser(email);
+      }
+
+      if (email.isNotEmpty && password.isNotEmpty) {
+        // Perform sign up with email, password, and username
+        await _signUp(email, password, username);
+      }
+
+      final updatedProfile = Profile(
+        id: widget.profile.id.isNotEmpty ? widget.profile.id : '',
+        email: email,
+        username: username,
+      );
+
+      // Return the updated profile to the previous page
+      Navigator.pop(context, updatedProfile);
     } catch (error) {
       print('Error saving user: $error');
       // Handle the error, show an error message, or perform other actions as needed
@@ -510,16 +606,18 @@ class _UserFormPageState extends State<UserFormPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(widget.profile != null ? 'Edit User' : 'Add New User'),
+        title:
+            Text(widget.profile.id.isNotEmpty ? 'Edit User' : 'Add New User'),
       ),
-    body:Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: Form(
-            key: _formKey,
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly, // Add this line
-              children: [
-                TextFormField(
+      body: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Form(
+          key: _formKey,
+          child: Column(
+            children: [
+              Padding(
+                padding: const EdgeInsets.symmetric(vertical: 8.0),
+                child: TextFormField(
                   controller: _emailController,
                   keyboardType: TextInputType.emailAddress,
                   decoration: InputDecoration(labelText: 'Email'),
@@ -530,7 +628,10 @@ class _UserFormPageState extends State<UserFormPage> {
                     return null;
                   },
                 ),
-                TextFormField(
+              ),
+              Padding(
+                padding: const EdgeInsets.symmetric(vertical: 8.0),
+                child: TextFormField(
                   controller: _usernameController,
                   decoration: InputDecoration(labelText: 'Username'),
                   validator: (value) {
@@ -540,8 +641,11 @@ class _UserFormPageState extends State<UserFormPage> {
                     return null;
                   },
                 ),
-                if (widget.profile == null)
-                  TextFormField(
+              ),
+            
+                Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 8.0),
+                  child: TextFormField(
                     controller: _passwordController,
                     obscureText: true,
                     decoration: InputDecoration(labelText: 'Password'),
@@ -552,16 +656,31 @@ class _UserFormPageState extends State<UserFormPage> {
                       return null;
                     },
                   ),
-                ElevatedButton(
-                  onPressed: saveUser,
-                  child: Text(
-                      widget.profile != null ? 'Save Changes' : 'Add User'),
                 ),
-              ],
-            ),
+              Padding(
+                padding: const EdgeInsets.symmetric(vertical: 8.0),
+                child: TextFormField(
+                  controller: _confirmPasswordController,
+                  obscureText: true,
+                  decoration: InputDecoration(labelText: 'Confirm Password'),
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return 'Please enter a confirmation password.';
+                    }
+                    return null;
+                  },
+                ),
+              ),
+              ElevatedButton(
+                onPressed: saveUser,
+                child: Text(
+                  widget.profile.id.isNotEmpty ? 'Save Changes' : 'Add User',
+                ),
+              ),
+            ],
           ),
-        )
-
+        ),
+      ),
     );
   }
 }
