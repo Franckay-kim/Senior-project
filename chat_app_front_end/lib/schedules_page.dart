@@ -1,6 +1,7 @@
 // ignore_for_file: unused_import
 
 import 'package:MeChat/constants.dart';
+import 'package:MeChat/events_page.dart';
 import 'package:MeChat/messages.dart';
 import 'package:MeChat/schedule.dart';
 import 'package:MeChat/screens/Login/login_screen.dart';
@@ -62,7 +63,6 @@ class _SchedulePageState extends State<SchedulePage> {
   }
 
   Future<void> fetchMessages() async {
-
     final response = await supabaseClient
         .from(tableName)
         .select(
@@ -79,8 +79,8 @@ class _SchedulePageState extends State<SchedulePage> {
         messages = (response.data as List<dynamic>)
             .cast<Map<String, dynamic>>()
             .where((message) {
-          final scheduledTime =
-              DateTime.parse(message['scheduled_time']).subtract(Duration(hours: 3));
+          final scheduledTime = DateTime.parse(message['scheduled_time'])
+              .subtract(Duration(hours: 3));
 
           final senderId = message['sender_id'];
           return scheduledTime.isBefore(now) || senderId == loggedInUserId;
@@ -246,7 +246,7 @@ class _SchedulePageState extends State<SchedulePage> {
                     Expanded(
                       child: Container(
                         padding: const EdgeInsets.only(
-                            bottom: 10), // Add padding at the bottom
+                            bottom: 5), // Add padding at the bottom
                         decoration: BoxDecoration(
                           border: Border(
                             bottom: BorderSide(
@@ -283,12 +283,13 @@ class _SchedulePageState extends State<SchedulePage> {
                       ),
                     ),
                     const SizedBox(
-                      width: 35,
+                      width: 20,
                     ),
-                    Expanded(
+
+                       Expanded(
                       child: Container(
                         padding: const EdgeInsets.only(
-                            bottom: 10), // Add padding at the bottom
+                            bottom: 5), // Add padding at the bottom
                         decoration: BoxDecoration(
                           border: Border(
                             bottom: BorderSide(
@@ -298,7 +299,7 @@ class _SchedulePageState extends State<SchedulePage> {
                           ),
                         ),
                         child: Hero(
-                          tag: "btn7",
+                          tag: "btn9",
                           child: TextButton(
                             onPressed: () {
                               Navigator.push(
@@ -325,7 +326,50 @@ class _SchedulePageState extends State<SchedulePage> {
                       ),
                     ),
                     const SizedBox(
-                      width: 35,
+                      width: 20,
+                    ),
+                    Expanded(
+                      child: Container(
+                        padding: const EdgeInsets.only(
+                            bottom: 5), // Add padding at the bottom
+                        decoration: BoxDecoration(
+                          border: Border(
+                            bottom: BorderSide(
+                              color: Colors.transparent,
+                              width: 2.0,
+                            ),
+                          ),
+                        ),
+                        child: Hero(
+                          tag: "btn7",
+                          child: TextButton(
+                            onPressed: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) {
+                                    return EventsPage();
+                                  },
+                                ),
+                              );
+                            },
+                            child: Text(
+                              "Events".toUpperCase(),
+                              style: TextStyle(
+                                color:
+                                    Colors.white, // Change text color to white
+                                fontSize: 20,
+                                decoration:
+                                    TextDecoration.none, // Remove underline
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                   
+                    const SizedBox(
+                      width: 20,
                     ),
                   ],
                 ),

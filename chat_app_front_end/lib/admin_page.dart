@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 import 'constants.dart';
+import 'events_add_page.dart';
 import 'screens/Login/login_screen.dart';
 
 void main() {
@@ -245,11 +246,20 @@ class _AdminPageState extends State<AdminPage> {
               },
             ),
             ListTile(
-              title: const Text('Add New Users'),
+              title: const Text('Manage Users'),
               onTap: () {
                 Navigator.push(
                   context,
                   MaterialPageRoute(builder: (context) => UserManagementPage()),
+                );
+              },
+            ),
+             ListTile(
+              title: const Text('Manage Events'),
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => EventManagementPage()),
                 );
               },
             ),

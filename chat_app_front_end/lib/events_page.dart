@@ -1,14 +1,11 @@
-
-import 'package:MeChat/constants.dart';
-import 'package:MeChat/events_page.dart';
+import 'package:MeChat/schedules_page.dart';
 import 'package:MeChat/screens/Login/login_screen.dart';
 import 'package:MeChat/users_page.dart';
 import 'package:flutter/material.dart';
 import 'package:supabase/supabase.dart';
 import 'package:intl/intl.dart';
 
-import 'chats.dart';
-import 'schedules_page.dart';
+import 'messages.dart';
 
 void main() {
   runApp(const MyApp());
@@ -21,53 +18,41 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      theme: ThemeData(
-        drawerTheme: const DrawerThemeData(scrimColor: Colors.transparent),
-      ),
       title: 'Chat App',
-      home: const MyHomePage(),
+      home: const EventsPage(),
     );
   }
 }
 
-class MyHomePage extends StatefulWidget {
-  const MyHomePage({Key? key}) : super(key: key);
+class EventsPage extends StatefulWidget {
+  const EventsPage({Key? key}) : super(key: key);
 
   @override
-  State<MyHomePage> createState() => _MyHomePageState();
-
-  static Route<Object?> route() {
-    return MaterialPageRoute(builder: (context) => const MyHomePage());
-  }
+  State<EventsPage> createState() => _EventsPageState();
 }
 
-class _MyHomePageState extends State<MyHomePage> {
+class _EventsPageState extends State<EventsPage> {
   final GlobalKey<ScaffoldState> _globalKey = GlobalKey();
 
   final supabaseUrl = 'https://lvpjqqiicmztxjpdbgdz.supabase.co';
   final supabaseKey =
       'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imx2cGpxcWlpY216dHhqcGRiZ2R6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE2ODg2MDA2NzEsImV4cCI6MjAwNDE3NjY3MX0.cF8vWd-cgMED4DM6WK19r69VM_uXrrMXb7guyDxJq7U';
-  final tableName = 'messages';
-  final loggedInUserId = supabase.auth.currentSession?.user.id;
+  final tableName = 'events';
 
   late SupabaseClient supabaseClient;
-  List<Map<String, dynamic>> messages = [];
-  bool hasMessages = false;
+  List<Map<String, dynamic>> events = [];
 
   @override
   void initState() {
     super.initState();
     supabaseClient = SupabaseClient(supabaseUrl, supabaseKey);
-    fetchMessages();
+    fetchEvents();
   }
 
-  Future<void> fetchMessages() async {
+  Future<void> fetchEvents() async {
     final response = await supabaseClient
         .from(tableName)
-        .select('sender_id, receiver_id, content, created_at')
-        .or(
-          'sender_id.eq.$loggedInUserId,receiver_id.eq.$loggedInUserId',
-        )
+        .select('event_name, event_date')
         .order('created_at', ascending: false)
         .limit(10)
         .execute();
@@ -77,164 +62,56 @@ class _MyHomePageState extends State<MyHomePage> {
       throw Error();
     } else {
       setState(() {
-        messages = (response.data as List<dynamic>)
+        events = (response.data as List<dynamic>)
             .cast<Map<String, dynamic>>()
             .toList();
-
-        final latestMessage = messages.isNotEmpty ? messages[0] : null;
-        final recipientId = latestMessage?['receiver_id'] as String?;
-        if (messages.isNotEmpty) {
-          messages[0]['recipient_id'] = recipientId ?? '';
-        }
-        hasMessages = messages.isNotEmpty;
       });
     }
   }
 
-  Future<String> getUsername(String? userId) async {
-    if (userId == null) {
-      return 'N/A'; // Provide a fallback value when userId is null
-    } else {
-      final response = await supabaseClient
-          .from('profiles')
-          .select('username')
-          .eq('id', userId)
-          .execute();
-
-      if (response.status != 200) {
-        // Handle error
-        throw Error();
-      } else {
-        final data = response.data as List<dynamic>?;
-        if (data != null && data.isNotEmpty) {
-          final username = data[0]['username'] as String? ?? 'Unknown';
-          return username;
-        } else {
-          return 'Unknown'; // Fallback value when response data is null or empty
-        }
-      }
-    }
-  }
-
-  Widget _buildMessageList() {
-    if (messages.isEmpty) {
+  Widget _buildEventList() {
+    if (events.isEmpty) {
       return Center(
         child: Text(
-          'No messages yet. Click on the button at the bottom left to start chatting!',
+          'No events',
           style: TextStyle(fontSize: 18),
         ),
       );
     }
-    final lastMessages = <String, Map<String, dynamic>>{};
-
-    for (final message in messages) {
-      final senderId = message['sender_id'] as String;
-      final receiverId = message['receiver_id'] as String;
-      final isSentMessage = senderId == loggedInUserId;
-      final otherUserId = isSentMessage ? receiverId : senderId;
-
-      final existingMessage = lastMessages[otherUserId];
-      if (existingMessage == null ||
-          DateTime.parse(message['created_at'] as String).isAfter(
-              DateTime.parse(existingMessage['created_at'] as String))) {
-        lastMessages[otherUserId] = message;
-      }
-    }
-
-    final sortedMessages = lastMessages.values.toList()
-      ..sort((a, b) => DateTime.parse(b['created_at'] as String)
-          .compareTo(DateTime.parse(a['created_at'] as String)));
 
     return ListView.builder(
       padding: const EdgeInsets.only(left: 25),
-      itemCount: sortedMessages.length,
+      itemCount: events.length,
       itemBuilder: (context, index) {
-        final message = sortedMessages[index];
-        final senderId = message['sender_id'] as String;
-        final receiverId = message['receiver_id'] as String;
-        final messageContent = message['content'] as String;
-        final createdAt = DateTime.parse(message['created_at'] as String);
-        final isSentMessage = senderId == loggedInUserId;
-        final otherUserId = isSentMessage ? receiverId : senderId;
+        final event = events[index];
+        final eventContent = event['event_name'] as String;
+        final eventDate = DateTime.parse(event['event_date'] as String);
 
-        return GestureDetector(
-          onTap: () {
-            final String recipientId = (receiverId == loggedInUserId)
-                ? message['sender_id'] as String
-                : message['receiver_id'] as String;
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (context) {
-                  return ChatsPage(recipientId: recipientId);
-                },
+        return Column(
+          children: [
+            ListTile(
+              leading: CircleAvatar(
+                child: Text('E'),
               ),
-            );
-          },
-          child: Column(
-            children: [
-              ListTile(
-                leading: FutureBuilder<String>(
-                  future: getUsername(otherUserId),
-                  builder: (context, snapshot) {
-                    if (snapshot.hasData) {
-                      final username =
-                          snapshot.data?[0].toUpperCase() ?? 'Unknown';
-                      return CircleAvatar(
-                        child: Text(username),
-                      );
-                    } else if (snapshot.hasError) {
-                      return Icon(Icons.error);
-                    } else {
-                      return CircularProgressIndicator();
-                    }
-                  },
-                ),
-                title: FutureBuilder<String>(
-                  future: getUsername(otherUserId),
-                  builder: (context, snapshot) {
-                    if (snapshot.hasData) {
-                      final username = snapshot.data!;
-
-                      return Text(
-                        isSentMessage
-                            ? 'Sent to $username'
-                            : 'Received from $username',
-                        style: TextStyle(
-                          fontWeight: FontWeight.bold,
-                          decoration: isSentMessage
-                              ? TextDecoration.none
-                              : TextDecoration.none,
-                        ),
-                      );
-                    } else {
-                      return Text(
-                        isSentMessage ? '' : '',
-                        style: TextStyle(
-                          fontWeight: FontWeight.bold,
-                          decoration: isSentMessage
-                              ? TextDecoration.none
-                              : TextDecoration.none,
-                        ),
-                      );
-                    }
-                  },
-                ),
-                subtitle: Text(
-                  messageContent,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                ),
-                trailing: Text(
-                  DateFormat('HH:mm').format(createdAt),
-                ),
+              title: Row(
+                children: [
+                  Text(
+                    eventContent,
+                    style: TextStyle(fontSize: 16),
+                  ),
+                  const SizedBox(width: 10),
+                  Text(
+                    '${eventDate.year}/${eventDate.month}/${eventDate.day}',
+                    style: TextStyle(fontSize: 14, color: Colors.grey),
+                  ),
+                ],
               ),
-              const Divider(
-                indent: 70,
-                height: 20,
-              ),
-            ],
-          ),
+            ),
+            const Divider(
+              indent: 70,
+              height: 20,
+            ),
+          ],
         );
       },
     );
@@ -286,7 +163,7 @@ class _MyHomePageState extends State<MyHomePage> {
                         decoration: BoxDecoration(
                           border: Border(
                             bottom: BorderSide(
-                              color: Colors.white,
+                              color: Colors.transparent,
                               width: 2.0,
                             ),
                           ),
@@ -363,14 +240,14 @@ class _MyHomePageState extends State<MyHomePage> {
                     const SizedBox(
                       width: 20,
                     ),
-                       Expanded(
+                    Expanded(
                       child: Container(
                         padding: const EdgeInsets.only(
                             bottom: 5), // Add padding at the bottom
                         decoration: BoxDecoration(
                           border: Border(
                             bottom: BorderSide(
-                              color: Colors.transparent,
+                              color: Colors.white,
                               width: 2.0,
                             ),
                           ),
@@ -402,7 +279,6 @@ class _MyHomePageState extends State<MyHomePage> {
                         ),
                       ),
                     ),
-                   
                     const SizedBox(
                       width: 20,
                     ),
@@ -424,31 +300,12 @@ class _MyHomePageState extends State<MyHomePage> {
                     topRight: Radius.circular(40)),
                 color: Color(0xFFEFFFFC),
               ),
-              child: _buildMessageList(),
+              child: _buildEventList(),
             ),
           ),
         ],
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.endDocked,
-      floatingActionButton: SizedBox(
-        height: 65,
-        width: 65,
-        child: FloatingActionButton(
-          backgroundColor: const Color(0xFF27c1a9),
-          child: const Icon(
-            Icons.edit_outlined,
-            size: 30,
-          ),
-          onPressed: () {
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (context) => UsersPage(),
-              ),
-            );
-          },
-        ),
-      ),
       drawer: Drawer(
         width: 275,
         elevation: 30,
